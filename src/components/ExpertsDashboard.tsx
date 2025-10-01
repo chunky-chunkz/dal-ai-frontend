@@ -159,7 +159,7 @@ const PopularQueries: React.FC<{ queries: QueryStats[] }> = ({ queries }) => (
       {queries.length === 0 ? (
         <p className="text-sm text-gray-500 italic">No query data available</p>
       ) : (
-        queries.map((query, index) => (
+        queries.map((query) => (
           <div key={query.query} className="border-l-4 border-blue-200 pl-4">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-medium text-gray-900 truncate max-w-xs" title={query.query}>
