@@ -19,19 +19,42 @@ function generateUUID(): string {
 
 /**
  * Get or create session ID from localStorage
+ * If user is logged in, use their user ID as session ID
+ * Otherwise, generate a random session ID
  */
 export function getSessionId(): string {
   const STORAGE_KEY = 'sid';
   
   try {
+    // First, check if we have a logged-in user info
+    const userInfoStr = localStorage.getItem('user');
+    console.log('🔍 Checking localStorage for user:', userInfoStr ? 'Found' : 'Not found');
+    
+    if (userInfoStr) {
+      try {
+        const userInfo = JSON.parse(userInfoStr);
+        console.log('🔍 Parsed user info:', userInfo);
+        
+        if (userInfo && userInfo.id) {
+          console.log('🆔 Using user ID as session ID:', userInfo.id);
+          return userInfo.id;
+        } else {
+          console.warn('⚠️ User info found but no ID field');
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to parse user info from localStorage', e);
+      }
+    }
+    
+    // Fallback to session-based ID
     let sessionId = localStorage.getItem(STORAGE_KEY);
     
     if (!sessionId) {
       sessionId = generateUUID();
       localStorage.setItem(STORAGE_KEY, sessionId);
-      console.log('🆔 Generated new session ID:', sessionId);
+      console.log('🆔 Generated new anonymous session ID:', sessionId);
     } else {
-      console.log('🆔 Using existing session ID:', sessionId);
+      console.log('🆔 Using existing anonymous session ID:', sessionId);
     }
     
     return sessionId;

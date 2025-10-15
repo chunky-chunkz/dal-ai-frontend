@@ -2,15 +2,16 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Bot, User, Sparkles, Zap, Brain, Menu, Settings, RotateCcw } from "lucide-react"
+import { Send, Bot, User, Sparkles, Zap, Brain, Menu, Settings, RotateCcw, FileText, Paperclip, Upload } from "lucide-react"
 import LoginButton from "@/components/LoginButton"
 import MobileNavigation from "@/components/MobileNavigation"
+import Link from "next/link"
 
 interface Message {
   id: string
@@ -30,45 +31,43 @@ function formatTime(date: Date): string {
 }
 
 export default function AIToolFrontend() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hallo! Ich bin Ihr KI-Assistent. Wie kann ich Ihnen heute helfen?",
-      sender: "ai",
-      timestamp: new Date(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [currentUser, setCurrentUser] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Function to clear chat messages on logout
   const handleLogout = () => {
     console.log('🗑️ Clearing chat messages due to logout');
     setCurrentUser(null);
-    setMessages([
-      {
-        id: "1",
-        content: "Hallo! Ich bin Ihr KI-Assistent. Wie kann ich Ihnen heute helfen?",
-        sender: "ai",
-        timestamp: new Date(),
-      },
-    ]);
+    setMessages([]);
   };
 
-  // Function to handle user login
-  const handleAuthChange = (user: any) => {
+  // Function to handle user login - memoized to prevent infinite loops
+  const handleAuthChange = useCallback((user: any) => {
     if (user) {
       console.log('✅ User logged in:', user.displayName || user.name || user.email);
-      setCurrentUser(user.displayName || user.name || user.email);
+      const userName = user.displayName || user.name || user.email;
+      setCurrentUser(userName);
+      // Set personalized welcome message
+      setMessages([
+        {
+          id: "1",
+          content: `Hallo ${userName}! Ich bin Ihr KI-Assistent. Wie kann ich Ihnen heute helfen?`,
+          sender: "ai",
+          timestamp: new Date(),
+        },
+      ]);
     } else {
       console.log('❌ User logged out');
       setCurrentUser(null);
     }
-  };
+  }, []); // Empty deps array - function logic doesn't depend on any external values
 
   // Auto-scroll chat area to bottom when new messages are added
   const scrollToBottom = () => {
@@ -109,6 +108,17 @@ export default function AIToolFrontend() {
     
     setIsLoading(true)
 
+    // Load AI settings from localStorage
+    let aiSettings: any = {}
+    try {
+      const savedSettings = localStorage.getItem('aiSettings')
+      if (savedSettings) {
+        aiSettings = JSON.parse(savedSettings)
+      }
+    } catch (error) {
+      console.error('Failed to load AI settings:', error)
+    }
+
     // Make real API call via Next.js API route
     try {
       const response = await fetch('/api/answer', {
@@ -120,7 +130,9 @@ export default function AIToolFrontend() {
           question: messageText,
           sessionId: currentUser || 'anonymous',
           retry: isRetry,
-          attempt: retryCount
+          attempt: retryCount,
+          // Pass AI settings to backend
+          settings: aiSettings
         }),
       })
 
@@ -180,6 +192,110 @@ export default function AIToolFrontend() {
     }
   }
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Check if it's a .txt file
+    if (!file.name.endsWith('.txt')) {
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        content: "⚠️ Bitte nur .txt Dateien hochladen.",
+        sender: "ai",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+      return
+    }
+
+    setIsUploadingDoc(true)
+
+    try {
+      // Add user message showing file upload
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: `📎 Dokument hochgeladen: ${file.name}`,
+        sender: "user",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, userMessage])
+
+      // Read file content
+      const content = await file.text()
+
+      // Get userId from auth/me endpoint
+      let userId: string | undefined;
+      try {
+        const authResponse = await fetch('/api/auth/me');
+        if (authResponse.ok) {
+          const authData = await authResponse.json();
+          // Extract userId from user object
+          userId = authData?.user?.userId || authData?.user?.id || authData?.user?.email;
+          console.log('📝 Got userId for document upload:', userId);
+        } else {
+          console.log('⚠️ Auth check failed, continuing without userId');
+        }
+      } catch (err) {
+        console.log('⚠️ Could not get userId, continuing without:', err);
+      }
+
+      console.log('📤 Uploading document with userId:', userId || 'none');
+
+      // Upload to backend
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          content: content,
+          userId: userId // Explicitly pass userId
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}`);
+      }
+
+      const result = await response.json()
+
+      if (result.success) {
+        const successMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: `✅ Dokument "${file.name}" wurde erfolgreich verarbeitet!\n\n📊 ${result.chunksCreated} Chunks erstellt\n💾 ${result.memoriesExtracted} Fakten gespeichert\n\nSie können mich jetzt über den Inhalt befragen!`,
+          sender: "ai",
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, successMessage])
+      } else {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: `❌ Fehler beim Hochladen: ${result.error || 'Unbekannter Fehler'}`,
+          sender: "ai",
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, errorMessage])
+      }
+
+      // Clear file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `❌ Upload fehlgeschlagen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`,
+        sender: "ai",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsUploadingDoc(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background mobile-optimized">
       {/* Header */}
@@ -195,7 +311,14 @@ export default function AIToolFrontend() {
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-6">
+                        {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-2 mobile-nav">
+              <Link href="/documents">
+                <Button variant="ghost" size="sm" className="mobile-touchable">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Dokumente
+                </Button>
+              </Link>
               <Button variant="ghost" size="sm" className="mobile-touchable">
                 <Sparkles className="w-4 h-4 mr-2" />
                 KI-Features
@@ -204,10 +327,12 @@ export default function AIToolFrontend() {
                 <Zap className="w-4 h-4 mr-2" />
                 Modelle
               </Button>
-              <Button variant="ghost" size="sm" className="mobile-touchable">
-                <Settings className="w-4 h-4 mr-2" />
-                Einstellungen
-              </Button>
+              <Link href="/settings">
+                <Button variant="ghost" size="sm" className="mobile-touchable">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Einstellungen
+                </Button>
+              </Link>
               <LoginButton 
                 className="ml-2" 
                 onLogout={handleLogout}
@@ -343,6 +468,31 @@ export default function AIToolFrontend() {
               {/* Input Area */}
               <div className="flex gap-2 pt-4 border-t border-border mobile-input-area">
                 <div className="mobile-input-container flex gap-2 w-full">
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".txt"
+                    onChange={handleFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                  
+                  {/* Document upload button */}
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isLoading || isUploadingDoc}
+                    size="icon"
+                    variant="outline"
+                    className="mobile-touchable flex-shrink-0"
+                    title="Dokument hochladen (.txt)"
+                  >
+                    {isUploadingDoc ? (
+                      <Upload className="w-4 h-4 animate-pulse" />
+                    ) : (
+                      <Paperclip className="w-4 h-4" />
+                    )}
+                  </Button>
+                  
                   <Input
                     placeholder="Stellen Sie hier Ihre Frage..."
                     value={inputValue}
@@ -355,7 +505,7 @@ export default function AIToolFrontend() {
                     onClick={() => handleSendMessage()} 
                     disabled={!inputValue.trim() || isLoading} 
                     size="icon"
-                    className="mobile-send-button mobile-touchable"
+                    className="mobile-send-button mobile-touchable flex-shrink-0"
                   >
                     <Send className="w-4 h-4" />
                   </Button>

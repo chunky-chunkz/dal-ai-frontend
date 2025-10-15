@@ -70,6 +70,15 @@ export async function loginLocal(credentials: LoginCredentials): Promise<AuthRes
     
     if (response.ok && data.ok && data.user) {
       console.log('✅ Local login successful:', data.user.email);
+      
+      // Store user info in localStorage for session management
+      try {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('💾 User info stored in localStorage');
+      } catch (e) {
+        console.warn('Failed to store user info in localStorage');
+      }
+      
       return data;
     } else {
       console.error('❌ Local login failed:', data);
@@ -107,6 +116,15 @@ export async function registerLocal(userData: RegisterData): Promise<AuthRespons
     
     if (response.ok && data.ok && data.user) {
       console.log('✅ Registration successful:', data.user.email);
+      
+      // Store user info in localStorage for session management
+      try {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('💾 User info stored in localStorage');
+      } catch (e) {
+        console.warn('Failed to store user info in localStorage');
+      }
+      
       return data;
     } else {
       console.error('❌ Registration failed:', data);
@@ -158,6 +176,15 @@ export async function logout(): Promise<LogoutResponse> {
 
     if (response.ok) {
       console.log('✅ Logout successful');
+      
+      // Clear user info from localStorage
+      try {
+        localStorage.removeItem('user');
+        console.log('🗑️ User info cleared from localStorage');
+      } catch (e) {
+        console.warn('Failed to clear user info from localStorage');
+      }
+      
       return { ok: true };
     } else {
       const errorData = await response.text();
@@ -195,9 +222,26 @@ export async function me(): Promise<UserProfile | null> {
     if (response.ok) {
       const userData = await response.json();
       console.log('✅ User authenticated:', userData.displayName || userData.name || userData.email);
+      
+      // Store user info in localStorage for session management
+      try {
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log('💾 User info stored in localStorage');
+      } catch (e) {
+        console.warn('Failed to store user info in localStorage');
+      }
+      
       return userData;
     } else if (response.status === 401) {
       console.log('❌ User not authenticated');
+      
+      // Clear user info from localStorage
+      try {
+        localStorage.removeItem('user');
+      } catch (e) {
+        // Ignore
+      }
+      
       return null;
     } else {
       console.error('❌ Error checking auth status:', response.status);

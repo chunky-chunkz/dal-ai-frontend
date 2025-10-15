@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Menu, X, Sparkles, Zap, Settings, User, LogOut } from "lucide-react"
+import { Menu, X, Sparkles, Zap, Settings, User, LogOut, FileText } from "lucide-react"
 
 interface MobileNavigationProps {
   currentUser?: string | null
@@ -72,6 +72,18 @@ export default function MobileNavigation({ currentUser, onLogout }: MobileNaviga
                 <Button
                   variant="ghost"
                   className="w-full justify-start mobile-button mobile-touchable"
+                  onClick={() => {
+                    window.location.href = '/documents'
+                    handleMenuClick()
+                  }}
+                >
+                  <FileText className="w-4 h-4 mr-3" />
+                  Dokumente
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start mobile-button mobile-touchable"
                   onClick={handleMenuClick}
                 >
                   <Sparkles className="w-4 h-4 mr-3" />
@@ -90,7 +102,10 @@ export default function MobileNavigation({ currentUser, onLogout }: MobileNaviga
                 <Button
                   variant="ghost"
                   className="w-full justify-start mobile-button mobile-touchable"
-                  onClick={handleMenuClick}
+                  onClick={() => {
+                    window.location.href = '/settings'
+                    handleMenuClick()
+                  }}
                 >
                   <Settings className="w-4 h-4 mr-3" />
                   Einstellungen

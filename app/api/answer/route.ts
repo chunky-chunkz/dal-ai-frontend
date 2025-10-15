@@ -147,12 +147,18 @@ export async function POST(request: NextRequest) {
     // Forward request to the real backend KI-system
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
     
+    // Get cookies from the incoming request to forward to backend
+    const cookies = request.headers.get('cookie') || '';
+    console.log('🍪 Forwarding cookies to backend:', cookies ? 'YES' : 'NO');
+    
     try {
       const backendResponse = await fetch(`${backendUrl}/api/answer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cookie': cookies, // Forward cookies to backend for auth
         },
+        credentials: 'include', // Include credentials
         body: JSON.stringify({ 
           question,
           sessionId,
