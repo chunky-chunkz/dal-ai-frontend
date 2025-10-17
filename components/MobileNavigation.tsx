@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Menu, X, Sparkles, Zap, Settings, User, LogOut, FileText } from "lucide-react"
+import { Menu, X, Settings, User, LogOut, FileText } from "lucide-react"
+import { ThemeToggle } from "./ThemeToggle"
 
 interface MobileNavigationProps {
   currentUser?: string | null
@@ -84,24 +85,6 @@ export default function MobileNavigation({ currentUser, onLogout }: MobileNaviga
                 <Button
                   variant="ghost"
                   className="w-full justify-start mobile-button mobile-touchable"
-                  onClick={handleMenuClick}
-                >
-                  <Sparkles className="w-4 h-4 mr-3" />
-                  KI-Features
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start mobile-button mobile-touchable"
-                  onClick={handleMenuClick}
-                >
-                  <Zap className="w-4 h-4 mr-3" />
-                  Modelle
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start mobile-button mobile-touchable"
                   onClick={() => {
                     window.location.href = '/settings'
                     handleMenuClick()
@@ -110,6 +93,11 @@ export default function MobileNavigation({ currentUser, onLogout }: MobileNaviga
                   <Settings className="w-4 h-4 mr-3" />
                   Einstellungen
                 </Button>
+
+                <div className="flex items-center justify-between pt-2 px-3">
+                  <span className="text-sm text-muted-foreground">Theme</span>
+                  <ThemeToggle />
+                </div>
               </nav>
             </div>
 

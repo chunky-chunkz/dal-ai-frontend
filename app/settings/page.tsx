@@ -23,10 +23,6 @@ interface AISettings {
   topK: number
   similarityThreshold: number
   
-  // Memory Settings
-  useMemory: boolean
-  memoryDepth: number
-  
   // Other Settings
   streamResponse: boolean
 }
@@ -38,8 +34,6 @@ const DEFAULT_SETTINGS: AISettings = {
   useRAG: true,
   topK: 5,
   similarityThreshold: 0.7,
-  useMemory: true,
-  memoryDepth: 10,
   streamResponse: true,
 }
 
@@ -110,7 +104,7 @@ export default function SettingsPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <Tabs defaultValue="llm" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="llm" className="flex items-center gap-2">
               <Brain className="w-4 h-4" />
               <span className="hidden sm:inline">LLM</span>
@@ -118,10 +112,6 @@ export default function SettingsPage() {
             <TabsTrigger value="rag" className="flex items-center gap-2">
               <Database className="w-4 h-4" />
               <span className="hidden sm:inline">RAG</span>
-            </TabsTrigger>
-            <TabsTrigger value="memory" className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline">Speicher</span>
             </TabsTrigger>
             <TabsTrigger value="other" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -150,15 +140,87 @@ export default function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="phi3">Phi-3 Mini (Standard)</SelectItem>
+                      {/* Kleine & Schnelle Modelle */}
+                      <SelectItem value="phi3">Phi-3 Mini (Standard) 🚀</SelectItem>
+                      <SelectItem value="phi3:mini">Phi-3 Mini (Kompakt)</SelectItem>
+                      <SelectItem value="phi3:medium">Phi-3 Medium (14B)</SelectItem>
+                      
+                      {/* Meta Llama Familie */}
+                      <SelectItem value="llama3.2">Llama 3.2 (Neueste) ✨</SelectItem>
+                      <SelectItem value="llama3.2:90b">Llama 3.2 90B (Premium) 🌟</SelectItem>
+                      <SelectItem value="llama3.1">Llama 3.1</SelectItem>
+                      <SelectItem value="llama3.1:70b">Llama 3.1 70B (Groß) 💎</SelectItem>
                       <SelectItem value="llama3">Llama 3</SelectItem>
-                      <SelectItem value="mistral">Mistral</SelectItem>
-                      <SelectItem value="gemma">Gemma</SelectItem>
+                      
+                      {/* Mistral Familie */}
+                      <SelectItem value="mistral">Mistral 7B 💡</SelectItem>
+                      <SelectItem value="mistral-nemo">Mistral Nemo 12B</SelectItem>
+                      <SelectItem value="mixtral">Mixtral 8x7B (47B) 🔥</SelectItem>
+                      <SelectItem value="mixtral:8x22b">Mixtral 8x22B (141B) 🚀</SelectItem>
+                      
+                      {/* Spezialisierte Modelle */}
+                      <SelectItem value="codellama">CodeLlama (Code) 💻</SelectItem>
+                      <SelectItem value="codellama:70b">CodeLlama 70B (Code Pro) 💻💎</SelectItem>
+                      <SelectItem value="deepseek-coder">DeepSeek Coder (Code) 🧑‍💻</SelectItem>
+                      <SelectItem value="deepseek-coder:33b">DeepSeek Coder 33B 🧑‍💻💎</SelectItem>
+                      
+                      {/* Weitere Top-Modelle */}
+                      <SelectItem value="gemma">Gemma 2B 🎯</SelectItem>
+                      <SelectItem value="gemma2:27b">Gemma 2 27B (Groß) 💎</SelectItem>
+                      <SelectItem value="qwen2">Qwen 2 🌟</SelectItem>
+                      <SelectItem value="qwen2:72b">Qwen 2 72B (Premium) 💎</SelectItem>
+                      <SelectItem value="command-r">Command R (Cohere)</SelectItem>
+                      <SelectItem value="command-r-plus">Command R+ (Cohere Premium) 👑</SelectItem>
+                      
+                      {/* Spezial-Modelle */}
+                      <SelectItem value="wizardlm2">WizardLM 2 🧙</SelectItem>
+                      <SelectItem value="solar">Solar 10.7B ☀️</SelectItem>
+                      <SelectItem value="nous-hermes2">Nous Hermes 2 🔮</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-sm text-muted-foreground">
-                    Wählen Sie das Sprachmodell für die Antwortgenerierung
-                  </p>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>Wählen Sie das Sprachmodell für die Antwortgenerierung</p>
+                    {settings.model === 'phi3' && (
+                      <p className="text-blue-600 dark:text-blue-400">
+                        🚀 <strong>Empfohlen:</strong> Schnell, effizient, gut für allgemeine Fragen
+                      </p>
+                    )}
+                    {settings.model === 'llama3.2' && (
+                      <p className="text-green-600 dark:text-green-400">
+                        ✨ <strong>Neueste Version:</strong> Verbesserte Genauigkeit und Kontext
+                      </p>
+                    )}
+                    {(settings.model === 'llama3.2:90b' || settings.model === 'llama3.1:70b' || settings.model === 'qwen2:72b') && (
+                      <p className="text-purple-600 dark:text-purple-400">
+                        💎 <strong>Premium-Modell:</strong> Höchste Qualität, beste Antworten, benötigt mehr Ressourcen
+                      </p>
+                    )}
+                    {(settings.model === 'mixtral' || settings.model === 'mixtral:8x22b') && (
+                      <p className="text-orange-600 dark:text-orange-400">
+                        🔥 <strong>Mixtral Expert:</strong> Mixture of Experts, sehr leistungsfähig
+                      </p>
+                    )}
+                    {(settings.model === 'codellama' || settings.model === 'codellama:70b' || settings.model === 'deepseek-coder' || settings.model === 'deepseek-coder:33b') && (
+                      <p className="text-indigo-600 dark:text-indigo-400">
+                        💻 <strong>Code-Spezialist:</strong> Optimiert für Programmierung und technische Fragen
+                      </p>
+                    )}
+                    {settings.model === 'mistral' && (
+                      <p className="text-purple-600 dark:text-purple-400">
+                        💡 <strong>Kreativ:</strong> Gut für längere, detaillierte Antworten
+                      </p>
+                    )}
+                    {settings.model === 'gemma' && (
+                      <p className="text-pink-600 dark:text-pink-400">
+                        🎯 <strong>Kompakt:</strong> Schnell, für einfache Fragen optimal
+                      </p>
+                    )}
+                    {(settings.model === 'command-r' || settings.model === 'command-r-plus') && (
+                      <p className="text-emerald-600 dark:text-emerald-400">
+                        👑 <strong>Cohere:</strong> Exzellent für RAG und Konversationen
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Temperature */}
@@ -295,60 +357,6 @@ export default function SettingsPage() {
                   />
                   <p className="text-sm text-muted-foreground">
                     Minimale Ähnlichkeit für relevante Dokumente (höher = strenger)
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Memory Settings */}
-          <TabsContent value="memory">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="w-5 h-5" />
-                  Speicher Einstellungen
-                </CardTitle>
-                <CardDescription>
-                  Konversations-Speicher für kontextbezogene Antworten
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Enable Memory */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="useMemory">Konversations-Speicher aktivieren</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Erinnert sich an frühere Nachrichten im Gespräch
-                    </p>
-                  </div>
-                  <Switch
-                    id="useMemory"
-                    checked={settings.useMemory}
-                    onCheckedChange={(checked) => updateSetting('useMemory', checked)}
-                  />
-                </div>
-
-                {/* Memory Depth */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="memoryDepth">Speichertiefe</Label>
-                    <span className="text-sm font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                      {settings.memoryDepth}
-                    </span>
-                  </div>
-                  <Slider
-                    id="memoryDepth"
-                    min={3}
-                    max={20}
-                    step={1}
-                    value={[settings.memoryDepth]}
-                    onValueChange={([value]) => updateSetting('memoryDepth', value)}
-                    className="w-full"
-                    disabled={!settings.useMemory}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Anzahl der vorherigen Nachrichten, die berücksichtigt werden
                   </p>
                 </div>
               </CardContent>

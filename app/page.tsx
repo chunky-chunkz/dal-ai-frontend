@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Bot, User, Sparkles, Zap, Brain, Menu, Settings, RotateCcw, FileText, Paperclip, Upload } from "lucide-react"
+import { Send, Bot, User, Sparkles, Brain, Menu, Settings, RotateCcw, FileText, Paperclip, Upload } from "lucide-react"
 import LoginButton from "@/components/LoginButton"
 import MobileNavigation from "@/components/MobileNavigation"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import Link from "next/link"
 
 interface Message {
@@ -38,6 +39,7 @@ export default function AIToolFrontend() {
   const [currentUser, setCurrentUser] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isUploadingDoc, setIsUploadingDoc] = useState(false)
+  const [currentModel, setCurrentModel] = useState<string>("phi3")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -88,6 +90,16 @@ export default function AIToolFrontend() {
   // Handle hydration
   useEffect(() => {
     setIsClient(true)
+    // Load current model from settings
+    try {
+      const savedSettings = localStorage.getItem('aiSettings')
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings)
+        setCurrentModel(settings.model || 'phi3')
+      }
+    } catch (error) {
+      console.error('Failed to load model setting:', error)
+    }
   }, [])
 
   const handleSendMessage = async (question?: string, isRetry: boolean = false, retryCount: number = 1) => {
@@ -196,11 +208,14 @@ export default function AIToolFrontend() {
     const file = event.target.files?.[0]
     if (!file) return
 
-    // Check if it's a .txt file
-    if (!file.name.endsWith('.txt')) {
+    // Check if it's a .txt, .pdf or .docx file
+    const isValidFile = file.name.endsWith('.txt') || 
+                       file.name.toLowerCase().endsWith('.pdf') ||
+                       file.name.toLowerCase().endsWith('.docx');
+    if (!isValidFile) {
       const errorMessage: Message = {
         id: Date.now().toString(),
-        content: "⚠️ Bitte nur .txt Dateien hochladen.",
+        content: "⚠️ Bitte nur .txt, .pdf oder .docx Dateien hochladen.",
         sender: "ai",
         timestamp: new Date(),
       }
@@ -221,7 +236,16 @@ export default function AIToolFrontend() {
       setMessages((prev) => [...prev, userMessage])
 
       // Read file content
-      const content = await file.text()
+      let content: string;
+      if (file.name.toLowerCase().endsWith('.pdf') || file.name.toLowerCase().endsWith('.docx')) {
+        // Read PDF as base64
+        const arrayBuffer = await file.arrayBuffer();
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+        content = base64;
+      } else {
+        // Read text file
+        content = await file.text();
+      }
 
       // Get userId from auth/me endpoint
       let userId: string | undefined;
@@ -319,20 +343,19 @@ export default function AIToolFrontend() {
                   Dokumente
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm" className="mobile-touchable">
-                <Sparkles className="w-4 h-4 mr-2" />
-                KI-Features
-              </Button>
-              <Button variant="ghost" size="sm" className="mobile-touchable">
-                <Zap className="w-4 h-4 mr-2" />
-                Modelle
-              </Button>
+              <Link href="/knowledge">
+                <Button variant="ghost" size="sm" className="mobile-touchable">
+                  <Brain className="w-4 h-4 mr-2" />
+                  Wissen
+                </Button>
+              </Link>
               <Link href="/settings">
                 <Button variant="ghost" size="sm" className="mobile-touchable">
                   <Settings className="w-4 h-4 mr-2" />
                   Einstellungen
                 </Button>
               </Link>
+              <ThemeToggle />
               <LoginButton 
                 className="ml-2" 
                 onLogout={handleLogout}
@@ -341,6 +364,7 @@ export default function AIToolFrontend() {
             </nav>
 
             <div className="md:hidden flex items-center gap-2">
+              <ThemeToggle />
               <LoginButton 
                 className="text-xs px-2 py-1" 
                 onLogout={handleLogout}
@@ -364,6 +388,12 @@ export default function AIToolFrontend() {
               <Sparkles className="w-4 h-4" />
               Powered by Ollama KI
             </div>
+            {isClient && (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
+                <Brain className="w-3.5 h-3.5" />
+                Modell: {currentModel}
+              </div>
+            )}
             <h2 className="text-3xl font-bold text-foreground text-balance mobile-heading-1">Ihr intelligenter KI-Assistent</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-pretty mobile-body">
               Erleben Sie die Kraft der KI mit unserem intuitiven Chat-Interface. Stellen Sie Fragen, erhalten Sie Einblicke und entdecken Sie neue Möglichkeiten.
@@ -472,7 +502,7 @@ export default function AIToolFrontend() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".txt"
+                    accept=".txt,.pdf,.docx"
                     onChange={handleFileUpload}
                     style={{ display: 'none' }}
                   />
@@ -484,7 +514,7 @@ export default function AIToolFrontend() {
                     size="icon"
                     variant="outline"
                     className="mobile-touchable flex-shrink-0"
-                    title="Dokument hochladen (.txt)"
+                    title="Dokument hochladen (.txt, .pdf oder .docx)"
                   >
                     {isUploadingDoc ? (
                       <Upload className="w-4 h-4 animate-pulse" />

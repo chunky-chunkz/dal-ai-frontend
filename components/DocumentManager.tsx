@@ -52,11 +52,14 @@ export default function DocumentManager() {
     const file = event.target.files?.[0]
     if (!file) return
 
-    // Check if it's a .txt file
-    if (!file.name.endsWith('.txt')) {
+    // Check if it's a .txt, .pdf or .docx file
+    const isValidFile = file.name.endsWith('.txt') || 
+                       file.name.toLowerCase().endsWith('.pdf') ||
+                       file.name.toLowerCase().endsWith('.docx');
+    if (!isValidFile) {
       setUploadStatus({
         type: 'error',
-        message: 'Bitte nur .txt Dateien hochladen'
+        message: 'Bitte nur .txt, .pdf oder .docx Dateien hochladen'
       })
       return
     }
@@ -69,7 +72,16 @@ export default function DocumentManager() {
 
     try {
       // Read file content
-      const content = await file.text()
+      let content: string;
+      if (file.name.toLowerCase().endsWith('.pdf') || file.name.toLowerCase().endsWith('.docx')) {
+        // Read PDF as base64
+        const arrayBuffer = await file.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString('base64');
+        content = base64;
+      } else {
+        // Read text file
+        content = await file.text();
+      }
 
       // Upload to backend
       const response = await fetch('/api/documents/upload', {
@@ -148,16 +160,16 @@ export default function DocumentManager() {
             Dokument hochladen
           </CardTitle>
           <CardDescription>
-            Laden Sie .txt Dateien hoch. Die KI kann sich den Inhalt merken und darauf antworten.
+            Laden Sie .txt, .pdf oder .docx Dateien hoch. Die KI kann sich den Inhalt merken und darauf antworten.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="file-upload">Datei auswählen (.txt)</Label>
+            <Label htmlFor="file-upload">Datei auswählen (.txt, .pdf oder .docx)</Label>
             <Input
               id="file-upload"
               type="file"
-              accept=".txt"
+              accept=".txt,.pdf,.docx"
               onChange={handleFileUpload}
               disabled={isUploading}
               className="cursor-pointer"

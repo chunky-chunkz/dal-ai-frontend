@@ -133,7 +133,7 @@ function generateAlternativeResponse(originalQuestion: string, sessionId: string
 
 export async function POST(request: NextRequest) {
   try {
-    const { question, sessionId = 'anonymous', retry = false, attempt = 1 } = await request.json()
+    const { question, sessionId = 'anonymous', retry = false, attempt = 1, settings = {} } = await request.json()
 
     if (!question || typeof question !== 'string' || question.trim().length === 0) {
       return NextResponse.json(
@@ -143,6 +143,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`🤖 Processing question for ${sessionId}: ${question}${retry ? ' (RETRY #' + attempt + ')' : ''}`)
+    if (settings && Object.keys(settings).length > 0) {
+      console.log('⚙️ Using custom settings:', settings)
+    }
 
     // Forward request to the real backend KI-system
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
@@ -163,7 +166,8 @@ export async function POST(request: NextRequest) {
           question,
           sessionId,
           retry,
-          attempt
+          attempt,
+          settings // Forward settings to backend
         }),
       })
 
