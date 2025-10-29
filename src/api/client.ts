@@ -4,7 +4,12 @@
  * - Include header in POST /api/answer and SSE /api/answer/stream
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+// Use Next.js environment variable format
+const BASE_URL = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL 
+  ? process.env.NEXT_PUBLIC_API_URL 
+  : (typeof window !== 'undefined' && (window as any).__ENV__?.VITE_API_URL)
+  ? (window as any).__ENV__.VITE_API_URL
+  : 'http://localhost:8081';
 
 /**
  * Generate a UUIDv4 string
@@ -482,6 +487,54 @@ export async function rejectMemory(suggestionIds: string[]): Promise<any> {
     return await response.json();
   } catch (error) {
     console.error('Memory reject error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all memories for the current user
+ */
+export async function getMemories(): Promise<any> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/memory`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': getSessionId(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch memories: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Get memories error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a specific memory by ID
+ */
+export async function deleteMemory(memoryId: string): Promise<any> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/memory/${memoryId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': getSessionId(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete memory: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Delete memory error:', error);
     throw error;
   }
 }

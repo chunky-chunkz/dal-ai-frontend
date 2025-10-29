@@ -12,6 +12,7 @@ interface DocumentItem {
   id: string
   name: string
   uploadedAt: string
+  uploadedBy?: string
   chunkCount: number
 }
 
@@ -25,11 +26,63 @@ export default function DocumentManager() {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isLoadingDocs, setIsLoadingDocs] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(true) // Start mit true, dann prüfen
+  const [currentUser, setCurrentUser] = useState<string | null>(null)
+
+  // Check authentication status on mount
+  useEffect(() => {
+    checkAuthStatus()
+  }, [])
 
   // Load documents on mount
   useEffect(() => {
     loadDocuments()
   }, [])
+
+  async function checkAuthStatus() {
+    try {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      })
+      console.log('📝 Auth check response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('📝 Auth check response:', data)
+        
+        // Sehr permissive Prüfung - wenn irgendetwas auf einen User hindeutet
+        const hasUser = data.user || data.userId || data.authenticated === true
+        
+        if (hasUser) {
+          setIsAuthenticated(true)
+          setCurrentUser(data.user?.email || data.user?.userId || data.userId || 'Benutzer')
+          console.log('✅ User is authenticated:', data.user?.email || data.userId || 'yes')
+        } else {
+          // Auch wenn response OK ist, aber keine User-Daten
+          console.log('⚠️ Response OK but no user data, assuming authenticated anyway')
+          setIsAuthenticated(true) // Permissiv: Wenn response OK, dann authenticated
+          setCurrentUser('Benutzer')
+        }
+      } else {
+        // Nur bei echten Fehlern (401, 403) als nicht authentifiziert behandeln
+        if (response.status === 401 || response.status === 403) {
+          setIsAuthenticated(false)
+          setCurrentUser(null)
+          console.log('⚠️ Auth check failed with status:', response.status)
+        } else {
+          // Bei anderen Fehlern (500, etc) als authentifiziert annehmen
+          console.log('⚠️ Auth check failed but assuming authenticated (status:', response.status, ')')
+          setIsAuthenticated(true)
+          setCurrentUser('Benutzer')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check auth status, assuming authenticated:', error)
+      // Bei Netzwerkfehlern: Permissiv behandeln
+      setIsAuthenticated(true)
+      setCurrentUser('Benutzer')
+    }
+  }
 
   async function loadDocuments() {
     setIsLoadingDocs(true)
@@ -107,10 +160,19 @@ export default function DocumentManager() {
         // Clear file input
         event.target.value = ''
       } else {
-        setUploadStatus({
-          type: 'error',
-          message: `❌ Fehler: ${result.error || 'Unbekannter Fehler'}`
-        })
+        // Check if it's an authentication error
+        if (response.status === 401) {
+          setUploadStatus({
+            type: 'error',
+            message: `❌ Nicht angemeldet: Bitte melden Sie sich an, um Dokumente hochzuladen`
+          })
+          setIsAuthenticated(false)
+        } else {
+          setUploadStatus({
+            type: 'error',
+            message: `❌ Fehler: ${result.error || 'Unbekannter Fehler'}`
+          })
+        }
       }
     } catch (error) {
       setUploadStatus({
@@ -239,6 +301,11 @@ export default function DocumentManager() {
                         <p className="text-xs text-muted-foreground">
                           {doc.chunkCount} Chunks • {new Date(doc.uploadedAt).toLocaleDateString('de-DE')}
                         </p>
+                        {doc.uploadedBy && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Hochgeladen von: <span className="font-medium text-foreground">{doc.uploadedBy}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
                     <Button

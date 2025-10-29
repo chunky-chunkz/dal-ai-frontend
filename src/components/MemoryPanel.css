@@ -1,0 +1,332 @@
+/**
+ * MemoryPanel.css
+ * Styles for the Memory Management Panel
+ */
+
+.memory-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  color: white;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.memory-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.memory-panel-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memory-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.memory-count {
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.refresh-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.refresh-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.refresh-button:active {
+  transform: translateY(0);
+}
+
+/* Loading State */
+.memory-panel-loading {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.memory-panel-loading p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Error State */
+.memory-panel-error {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.memory-panel-error p {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  color: #ffeb3b;
+}
+
+.retry-button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Empty State */
+.memory-panel-empty {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.memory-panel-empty p {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.memory-panel-hint {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Memory List */
+.memory-list {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Memory Item Card */
+.memory-item {
+  background: white;
+  color: #333;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.memory-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.memory-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.memory-type {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: #f0f0f0;
+  color: #555;
+}
+
+.memory-confidence {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.confidence-high {
+  background: #4caf50;
+  color: white;
+}
+
+.confidence-medium {
+  background: #ff9800;
+  color: white;
+}
+
+.confidence-low {
+  background: #f44336;
+  color: white;
+}
+
+.memory-item-content {
+  border-left: 3px solid #667eea;
+  padding-left: 12px;
+}
+
+.memory-key {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.memory-value {
+  font-size: 1rem;
+  color: #333;
+  word-wrap: break-word;
+}
+
+.memory-item-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #888;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.memory-date,
+.memory-expires {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.memory-delete-button {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.memory-delete-button:hover:not(:disabled) {
+  background: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.memory-delete-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.memory-delete-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .memory-item {
+    background: #2a2a2a;
+    color: #e0e0e0;
+  }
+
+  .memory-type {
+    background: #3a3a3a;
+    color: #b0b0b0;
+  }
+
+  .memory-value {
+    color: #e0e0e0;
+  }
+
+  .memory-item-footer {
+    border-top-color: #444;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .memory-panel {
+    padding: 16px;
+  }
+
+  .memory-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .memory-panel-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .memory-list {
+    grid-template-columns: 1fr;
+  }
+
+  .memory-panel-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.memory-item {
+  animation: fadeIn 0.3s ease;
+}

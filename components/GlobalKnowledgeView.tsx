@@ -44,11 +44,50 @@ export default function GlobalKnowledgeView() {
   const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(true) // Start mit true
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    checkAuthStatus()
     loadGlobalKnowledge()
   }, [])
+
+  async function checkAuthStatus() {
+    try {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      })
+      console.log('📝 Auth check response status (Global):', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('📝 Auth check response (Global):', data)
+        
+        // Sehr permissive Prüfung
+        const hasUser = data.user || data.userId || data.authenticated === true
+        
+        if (hasUser) {
+          setIsAuthenticated(true)
+          console.log('✅ User is authenticated (Global):', data.user?.email || data.userId || 'yes')
+        } else {
+          console.log('⚠️ Response OK but no user data, assuming authenticated anyway (Global)')
+          setIsAuthenticated(true) // Permissiv
+        }
+      } else {
+        // Nur bei echten Auth-Fehlern
+        if (response.status === 401 || response.status === 403) {
+          setIsAuthenticated(false)
+          console.log('⚠️ Auth check failed with status (Global):', response.status)
+        } else {
+          console.log('⚠️ Auth check failed but assuming authenticated (Global, status:', response.status, ')')
+          setIsAuthenticated(true)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check auth status, assuming authenticated (Global):', error)
+      setIsAuthenticated(true) // Permissiv bei Fehlern
+    }
+  }
 
   async function loadGlobalKnowledge() {
     setIsLoading(true)
@@ -136,10 +175,19 @@ export default function GlobalKnowledgeView() {
           fileInputRef.current.value = ''
         }
       } else {
-        setUploadStatus({
-          type: 'error',
-          message: `❌ Fehler: ${result.error || 'Unbekannter Fehler'}`
-        })
+        // Check if it's an authentication error
+        if (response.status === 401) {
+          setUploadStatus({
+            type: 'error',
+            message: `❌ Nicht angemeldet: Bitte melden Sie sich an, um Dokumente hochzuladen`
+          })
+          setIsAuthenticated(false)
+        } else {
+          setUploadStatus({
+            type: 'error',
+            message: `❌ Fehler: ${result.error || 'Unbekannter Fehler'}`
+          })
+        }
       }
     } catch (error) {
       setUploadStatus({

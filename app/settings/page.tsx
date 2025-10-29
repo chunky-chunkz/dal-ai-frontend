@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Settings, Save, RotateCcw, Brain, Zap, Shield, Database } from "lucide-react"
 import Link from "next/link"
+import { MemoryPanel } from "@/src/components/MemoryPanel"
 
 interface AISettings {
   // LLM Settings
@@ -104,7 +105,7 @@ export default function SettingsPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <Tabs defaultValue="llm" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="llm" className="flex items-center gap-2">
               <Brain className="w-4 h-4" />
               <span className="hidden sm:inline">LLM</span>
@@ -112,6 +113,10 @@ export default function SettingsPage() {
             <TabsTrigger value="rag" className="flex items-center gap-2">
               <Database className="w-4 h-4" />
               <span className="hidden sm:inline">RAG</span>
+            </TabsTrigger>
+            <TabsTrigger value="memory" className="flex items-center gap-2">
+              <Brain className="w-4 h-4" />
+              <span className="hidden sm:inline">Erinnerungen</span>
             </TabsTrigger>
             <TabsTrigger value="other" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -149,7 +154,7 @@ export default function SettingsPage() {
                       <SelectItem value="llama3.2">Llama 3.2 (Neueste) ✨</SelectItem>
                       <SelectItem value="llama3.2:90b">Llama 3.2 90B (Premium) 🌟</SelectItem>
                       <SelectItem value="llama3.1">Llama 3.1</SelectItem>
-                      <SelectItem value="llama3.1:70b">Llama 3.1 70B (Groß) 💎</SelectItem>
+                      <SelectItem value="llama3.1:70b">Llama 3.1 70B (Gross) 💎</SelectItem>
                       <SelectItem value="llama3">Llama 3</SelectItem>
                       
                       {/* Mistral Familie */}
@@ -166,7 +171,7 @@ export default function SettingsPage() {
                       
                       {/* Weitere Top-Modelle */}
                       <SelectItem value="gemma">Gemma 2B 🎯</SelectItem>
-                      <SelectItem value="gemma2:27b">Gemma 2 27B (Groß) 💎</SelectItem>
+                      <SelectItem value="gemma2:27b">Gemma 2 27B (Gross) 💎</SelectItem>
                       <SelectItem value="qwen2">Qwen 2 🌟</SelectItem>
                       <SelectItem value="qwen2:72b">Qwen 2 72B (Premium) 💎</SelectItem>
                       <SelectItem value="command-r">Command R (Cohere)</SelectItem>
@@ -381,6 +386,16 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Memory Management */}
+          <TabsContent value="memory">
+            <div className="space-y-6">
+              <MemoryPanel 
+                onMemoryDeleted={(id) => console.log('Memory deleted:', id)}
+                onError={(error) => console.error('Memory error:', error)}
+              />
+            </div>
           </TabsContent>
         </Tabs>
 
