@@ -1,97 +1,88 @@
-import React, { useState } from 'react';
-import AuthForm from '../components/AuthForm';
-import { UserProfile } from '../api/auth';
+"use client";
 
-const AuthDemo: React.FC = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [authError, setAuthError] = useState<string | null>(null);
+import { useState } from "react";
 
-  const handleAuthSuccess = (userProfile: UserProfile) => {
-    setUser(userProfile);
-    setAuthError(null);
-    console.log('Authentication successful:', userProfile);
+export default function AuthDemo() {
+  // API-URL aus Umgebungsvariable (mit Fallback)
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://dal-ai-backend.lab.local";
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [response, setResponse] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setResponse(null);
+
+    try {
+      const res = await fetch(`${apiUrl}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+      setResponse(JSON.stringify(data, null, 2));
+    } catch (err: any) {
+      setResponse(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handleAuthError = (error: string) => {
-    setAuthError(error);
-    console.error('Authentication error:', error);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setAuthError(null);
-  };
-
-  if (user) {
-    return (
-      <div style={{ 
-        padding: '20px', 
-        textAlign: 'center',
-        maxWidth: '600px',
-        margin: '0 auto',
-        marginTop: '50px'
-      }}>
-        <div style={{
-          background: 'white',
-          padding: '30px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-        }}>
-          <h1>Welcome!</h1>
-          <div style={{ marginBottom: '20px' }}>
-            <p><strong>Display Name:</strong> {user.displayName}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            {user.jobTitle && <p><strong>Job Title:</strong> {user.jobTitle}</p>}
-            {user.officeLocation && <p><strong>Office:</strong> {user.officeLocation}</p>}
-            {user.providers && (
-              <p><strong>Auth Providers:</strong> {user.providers.join(', ')}</p>
-            )}
-          </div>
-          <button 
-            onClick={handleLogout}
-            style={{
-              padding: '12px 24px',
-              background: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      {authError && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#f8d7da',
-          color: '#721c24',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          border: '1px solid #f5c6cb',
-          zIndex: 1000
-        }}>
-          {authError}
-        </div>
+    <div style={{ maxWidth: 480, margin: "0 auto", padding: "2rem" }}>
+      <h1>Auth Demo</h1>
+      <p>API URL: <strong>{apiUrl}</strong></p>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem" }}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ width: "100%", padding: "0.5rem" }}
+        />
+      </div>
+
+      <button
+        onClick={handleLogin}
+        disabled={loading}
+        style={{
+          width: "100%",
+          padding: "0.75rem",
+          backgroundColor: "#0070f3",
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        {loading ? "Logging in..." : "Login"}
+      </button>
+
+      {response && (
+        <pre
+          style={{
+            marginTop: "1.5rem",
+            background: "#f3f3f3",
+            padding: "1rem",
+            borderRadius: "8px",
+            fontSize: "0.9rem",
+          }}
+        >
+          {response}
+        </pre>
       )}
-      
-      <AuthForm 
-        onAuthSuccess={handleAuthSuccess}
-        onError={handleAuthError}
-        defaultTab="login"
-      />
     </div>
   );
-};
-
-export default AuthDemo;
+}
