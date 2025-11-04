@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function AuthDemo() {
   // API-URL aus Umgebungsvariable (mit Fallback)
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://dal-ai.sunrise-avengers.ch";
+  const apiUrl = "https://dal-ai.sunrise-avengers.ch";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
