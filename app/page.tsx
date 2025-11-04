@@ -349,6 +349,18 @@ export default function AIToolFrontend() {
                   Wissen
                 </Button>
               </Link>
+              <Link href="/memories">
+                <Button variant="ghost" size="sm" className="mobile-touchable">
+                  <Brain className="w-4 h-4 mr-2" />
+                  Meine Erinnerungen
+                </Button>
+              </Link>
+              <Link href="/stats/memory">
+                <Button variant="ghost" size="sm" className="mobile-touchable">
+                  <Brain className="w-4 h-4 mr-2" />
+                  Memory-Statistiken
+                </Button>
+              </Link>
               <Link href="/settings">
                 <Button variant="ghost" size="sm" className="mobile-touchable">
                   <Settings className="w-4 h-4 mr-2" />

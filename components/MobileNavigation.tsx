@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Menu, X, Settings, User, LogOut, FileText } from "lucide-react"
+import { Menu, X, Settings, User, LogOut, FileText, Brain } from "lucide-react"
 import { ThemeToggle } from "./ThemeToggle"
 
 interface MobileNavigationProps {
@@ -80,6 +80,42 @@ export default function MobileNavigation({ currentUser, onLogout }: MobileNaviga
                 >
                   <FileText className="w-4 h-4 mr-3" />
                   Dokumente
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start mobile-button mobile-touchable"
+                  onClick={() => {
+                    window.location.href = '/knowledge'
+                    handleMenuClick()
+                  }}
+                >
+                  <Brain className="w-4 h-4 mr-3" />
+                  Wissen
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start mobile-button mobile-touchable"
+                  onClick={() => {
+                    window.location.href = '/memories'
+                    handleMenuClick()
+                  }}
+                >
+                  <Brain className="w-4 h-4 mr-3" />
+                  Meine Erinnerungen
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start mobile-button mobile-touchable"
+                  onClick={() => {
+                    window.location.href = '/stats/memory'
+                    handleMenuClick()
+                  }}
+                >
+                  <Brain className="w-4 h-4 mr-3" />
+                  Memory-Statistiken
                 </Button>
                 
                 <Button

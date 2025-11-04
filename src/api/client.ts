@@ -538,3 +538,34 @@ export async function deleteMemory(memoryId: string): Promise<any> {
     throw error;
   }
 }
+
+/**
+ * Get memory statistics (KPIs)
+ */
+export async function getMemoryStats(from?: number, to?: number): Promise<any> {
+  try {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from.toString());
+    if (to) params.append('to', to.toString());
+    
+    const url = `${BASE_URL}/api/stats/memory${params.toString() ? '?' + params.toString() : ''}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': getSessionId(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch memory stats: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Get memory stats error:', error);
+    throw error;
+  }
+}
+

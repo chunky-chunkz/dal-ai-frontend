@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward request to the real backend KI-system
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8081'
     
     // Get cookies from the incoming request to forward to backend
     const cookies = request.headers.get('cookie') || '';
