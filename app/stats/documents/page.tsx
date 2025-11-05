@@ -1,12 +1,11 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, FileText } from "lucide-react"
+import { ArrowLeft, Brain } from "lucide-react"
 import Link from "next/link"
-import LoginButton from "@/components/LoginButton"
-import { MemoryStats } from "@/components/MemoryStats"
+import { DocumentStats } from "@/components/DocumentStats"
 
-export default function MemoryStatsPage() {
+export default function DocumentStatsPage() {
   return (
     <div className="flex h-screen bg-gradient-to-br from-background to-secondary/20">
       {/* Main Content */}
@@ -22,18 +21,15 @@ export default function MemoryStatsPage() {
                 </Button>
               </Link>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Memory-Statistiken
+                Dokumenten-Statistiken
               </h1>
             </div>
-            <div className="flex items-center gap-2">
-              <Link href="/stats/documents">
-                <Button variant="outline" size="sm">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Dokumenten-Stats
-                </Button>
-              </Link>
-              <LoginButton />
-            </div>
+            <Link href="/stats/memory">
+              <Button variant="outline" size="sm">
+                <Brain className="h-4 w-4 mr-2" />
+                Memory-Stats
+              </Button>
+            </Link>
           </div>
         </header>
 
@@ -42,10 +38,10 @@ export default function MemoryStatsPage() {
           <div className="container mx-auto px-4 py-8 max-w-6xl">
             <div className="mb-6">
               <p className="text-muted-foreground">
-                Überwachung und Analyse der Memory-System-Performance
+                Überwachung und Analyse der Dokumenten-System-Performance
               </p>
             </div>
-            <MemoryStats />
+            <DocumentStats />
           </div>
         </div>
       </div>
