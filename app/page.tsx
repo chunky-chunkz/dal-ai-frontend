@@ -133,27 +133,21 @@ export default function AIToolFrontend() {
     }
 
     // Make real API call via Next.js API route
-try {
-  // Basis-URL aus env lesen (z. B. https://dal-ai-backend.onrender.com)
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
-  if (!API_BASE) {
-    throw new Error('NEXT_PUBLIC_API_BASE is not set');
-  }
-
-  const response = await fetch(`${API_BASE}/api/answer`, {
-    method: 'POST',
-    credentials: 'include', // falls Cookies/Sessions genutzt werden
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      question: messageText,
-      sessionId: currentUser || 'anonymous',
-      retry: isRetry,
-      attempt: retryCount,
-      settings: aiSettings,
-    }),
-  });
+    try {
+      const response = await fetch(getApiUrl('/api/answer'), {
+        method: 'POST',
+        credentials: 'include', // falls Cookies/Sessions genutzt werden
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: messageText,
+          sessionId: currentUser || 'anonymous',
+          retry: isRetry,
+          attempt: retryCount,
+          settings: aiSettings,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
