@@ -3,11 +3,10 @@
  * Enhanced auth helpers for both local and Microsoft OAuth authentication
  */
 
-// Get API base URL - in Next.js we can use environment variables directly
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
+import { getApiUrl } from './api-config';
 
-// Debug: Log the API base URL being used
-console.log('🔗 API_BASE:', API_BASE);
+// Debug: Log the API configuration
+console.log('🔗 Using API configuration from api-config');
 
 // User profile interface matching backend response
 export interface UserProfile {
@@ -57,7 +56,7 @@ export async function loginLocal(credentials: LoginCredentials): Promise<AuthRes
   try {
     console.log('🔐 Logging in with email and password...');
     
-    const response = await fetch(`${API_BASE}/api/auth/login`, {
+    const response = await fetch(getApiUrl('/api/auth/login'), {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -103,7 +102,7 @@ export async function registerLocal(userData: RegisterData): Promise<AuthRespons
   try {
     console.log('📝 Registering new user...');
     
-    const response = await fetch(`${API_BASE}/api/auth/register`, {
+    const response = await fetch(getApiUrl('/api/auth/register'), {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -154,7 +153,7 @@ export function loginWithMicrosoft(): void {
   console.log('🔐 Redirecting to Microsoft OAuth login...');
   
   // Redirect to backend OAuth login endpoint
-  window.location.href = `${API_BASE}/auth/ms/login`;
+  window.location.href = getApiUrl('/auth/ms/login');
 }
 
 /**
@@ -169,7 +168,7 @@ export async function logout(): Promise<LogoutResponse> {
   try {
     console.log('🚪 Logging out...');
     
-    const response = await fetch(`${API_BASE}/api/auth/logout`, {
+    const response = await fetch(getApiUrl('/api/auth/logout'), {
       method: 'POST',
       credentials: 'include', // Include session cookies
     });
@@ -211,7 +210,7 @@ export async function me(): Promise<UserProfile | null> {
   try {
     console.log('🔍 Checking authentication status...');
     
-    const response = await fetch(`${API_BASE}/api/me`, {
+    const response = await fetch(getApiUrl('/api/me'), {
       method: 'GET',
       credentials: 'include', // Include session cookies
       headers: {
@@ -249,7 +248,7 @@ export async function me(): Promise<UserProfile | null> {
     }
   } catch (error) {
     console.error('❌ Network error checking auth status:', error);
-    console.error('Backend might not be running on:', API_BASE);
+    console.error('Backend might not be running. Check API configuration.');
     return null;
   }
 }

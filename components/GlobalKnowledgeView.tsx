@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Brain, RefreshCw, Database, Upload, CheckCircle2, AlertCircle } from "lucide-react"
+import { getApiUrl } from "@/lib/api-config"
 
 interface GlobalMemory {
   id: string
@@ -54,7 +55,7 @@ export default function GlobalKnowledgeView() {
 
   async function checkAuthStatus() {
     try {
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch(getApiUrl('/api/auth/me'), {
         credentials: 'include'
       })
       console.log('📝 Auth check response status (Global):', response.status)
@@ -93,7 +94,7 @@ export default function GlobalKnowledgeView() {
     setIsLoading(true)
     try {
       // Load global knowledge from documents
-      const globalResponse = await fetch('/api/memory/global')
+      const globalResponse = await fetch(getApiUrl('/api/memory/global'))
       if (globalResponse.ok) {
         const globalResult = await globalResponse.json()
         setMemories(globalResult.data || [])
@@ -101,7 +102,7 @@ export default function GlobalKnowledgeView() {
       }
 
       // Load user memories
-      const userResponse = await fetch('/api/memory/all-users')
+      const userResponse = await fetch(getApiUrl('/api/memory/all-users'))
       if (userResponse.ok) {
         const userResult = await userResponse.json()
         setUserMemories(userResult.data || [])
@@ -149,7 +150,7 @@ export default function GlobalKnowledgeView() {
       }
 
       // Upload to backend (without userId - will be stored as global-knowledge)
-      const response = await fetch('/api/documents/upload', {
+      const response = await fetch(getApiUrl('/api/documents/upload'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

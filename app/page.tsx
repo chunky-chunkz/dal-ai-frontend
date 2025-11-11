@@ -13,6 +13,7 @@ import LoginButton from "@/components/LoginButton"
 import MobileNavigation from "@/components/MobileNavigation"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import Link from "next/link"
+import { getApiUrl } from "@/lib/api-config"
 
 interface Message {
   id: string
@@ -132,21 +133,27 @@ export default function AIToolFrontend() {
     }
 
     // Make real API call via Next.js API route
-    try {
-      const response = await fetch('/api/answer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          question: messageText,
-          sessionId: currentUser || 'anonymous',
-          retry: isRetry,
-          attempt: retryCount,
-          // Pass AI settings to backend
-          settings: aiSettings
-        }),
-      })
+try {
+  // Basis-URL aus env lesen (z. B. https://dal-ai-backend.onrender.com)
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+  if (!API_BASE) {
+    throw new Error('NEXT_PUBLIC_API_BASE is not set');
+  }
+
+  const response = await fetch(`${API_BASE}/api/answer`, {
+    method: 'POST',
+    credentials: 'include', // falls Cookies/Sessions genutzt werden
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      question: messageText,
+      sessionId: currentUser || 'anonymous',
+      retry: isRetry,
+      attempt: retryCount,
+      settings: aiSettings,
+    }),
+  });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -250,33 +257,37 @@ export default function AIToolFrontend() {
       // Get userId from auth/me endpoint
       let userId: string | undefined;
       try {
-        const authResponse = await fetch('/api/auth/me');
+        const authResponse = await fetch(getApiUrl('/api/auth/me'), {
+          credentials: 'include',
+        });
+
         if (authResponse.ok) {
           const authData = await authResponse.json();
-          // Extract userId from user object
-          userId = authData?.user?.userId || authData?.user?.id || authData?.user?.email;
+          // userId aus der Antwort extrahieren
+          userId = authData?.user?.userId
+                 || authData?.user?.id
+                 || authData?.user?.email;
           console.log('📝 Got userId for document upload:', userId);
         } else {
           console.log('⚠️ Auth check failed, continuing without userId');
         }
-      } catch (err) {
-        console.log('⚠️ Could not get userId, continuing without:', err);
+      } catch (error) {
+        console.error('⚠️ Auth check failed:', error);
       }
 
-      console.log('📤 Uploading document with userId:', userId || 'none');
-
       // Upload to backend
-      const response = await fetch('/api/documents/upload', {
+      const response = await fetch(getApiUrl('/api/documents/upload'), {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           filename: file.name,
           content: content,
-          userId: userId // Explicitly pass userId
-        })
-      })
+          userId: userId,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`Upload failed with status ${response.status}`);

@@ -5,11 +5,10 @@
  * - logout()
  * - me()
  * - providers()
- * Base URL from VITE_API_URL.
+ * Base URL from environment variables.
  */
 
-// Get API base URL from environment variable or default to backend
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+import { API_BASE } from './config';
 
 // User profile interface matching backend response
 export interface UserProfile {

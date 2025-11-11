@@ -39,67 +39,87 @@ export default function DocumentManager() {
     loadDocuments()
   }, [])
 
-  async function checkAuthStatus() {
-    try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include'
-      })
-      console.log('📝 Auth check response status:', response.status)
-      
-      if (response.ok) {
-        const data = await response.json()
-        console.log('📝 Auth check response:', data)
-        
-        // Sehr permissive Prüfung - wenn irgendetwas auf einen User hindeutet
-        const hasUser = data.user || data.userId || data.authenticated === true
-        
-        if (hasUser) {
-          setIsAuthenticated(true)
-          setCurrentUser(data.user?.email || data.user?.userId || data.userId || 'Benutzer')
-          console.log('✅ User is authenticated:', data.user?.email || data.userId || 'yes')
-        } else {
-          // Auch wenn response OK ist, aber keine User-Daten
-          console.log('⚠️ Response OK but no user data, assuming authenticated anyway')
-          setIsAuthenticated(true) // Permissiv: Wenn response OK, dann authenticated
-          setCurrentUser('Benutzer')
-        }
-      } else {
-        // Nur bei echten Fehlern (401, 403) als nicht authentifiziert behandeln
-        if (response.status === 401 || response.status === 403) {
-          setIsAuthenticated(false)
-          setCurrentUser(null)
-          console.log('⚠️ Auth check failed with status:', response.status)
-        } else {
-          // Bei anderen Fehlern (500, etc) als authentifiziert annehmen
-          console.log('⚠️ Auth check failed but assuming authenticated (status:', response.status, ')')
-          setIsAuthenticated(true)
-          setCurrentUser('Benutzer')
-        }
-      }
-    } catch (error) {
-      console.error('Failed to check auth status, assuming authenticated:', error)
-      // Bei Netzwerkfehlern: Permissiv behandeln
-      setIsAuthenticated(true)
-      setCurrentUser('Benutzer')
+async function checkAuthStatus() {
+  try {
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+    if (!API_BASE) {
+      throw new Error('NEXT_PUBLIC_API_BASE is not defined');
     }
-  }
 
-  async function loadDocuments() {
-    setIsLoadingDocs(true)
-    try {
-      const response = await fetch('/api/documents')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.documents) {
-          setDocuments(data.documents)
-        }
+    const response = await fetch(`${API_BASE}/api/auth/me`, {
+      credentials: 'include',
+    });
+    console.log('📝 Auth check response status:', response.status);
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('📝 Auth check response:', data);
+
+      const hasUser =
+        data.user ||
+        data.userId ||
+        data.authenticated === true;
+
+      if (hasUser) {
+        setIsAuthenticated(true);
+        setCurrentUser(
+          data.user?.email ||
+            data.user?.userId ||
+            data.userId ||
+            'Benutzer'
+        );
+        console.log(
+          '✅ User is authenticated:',
+          data.user?.email || data.userId || 'yes',
+        );
+      } else {
+        console.log(
+          '⚠️ Response OK but no user data, assuming authenticated anyway',
+        );
+        setIsAuthenticated(true);
+        setCurrentUser('Benutzer');
       }
-    } catch (error) {
-      console.error('Failed to load documents:', error)
-    } finally {
-      setIsLoadingDocs(false)
+    } else {
+      if (response.status === 401 || response.status === 403) {
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        console.log('⚠️ Auth check failed with status:', response.status);
+      } else {
+        console.log(
+          '⚠️ Auth check failed but assuming authenticated (status:',
+          response.status,
+          ')',
+        );
+        setIsAuthenticated(true);
+        setCurrentUser('Benutzer');
+      }
     }
+  } catch (error) {
+    console.error('Failed to check auth status, assuming authenticated:', error);
+    setIsAuthenticated(true);
+    setCurrentUser('Benutzer');
   }
+}
+
+async function loadDocuments() {
+  setIsLoadingDocs(true);
+  try {
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
+    const response = await fetch(`${API_BASE}/api/documents`, {
+      credentials: 'include',          // falls Cookies zur Authentifizierung genutzt werden
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.documents) {
+        setDocuments(data.documents);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load documents:', error);
+  } finally {
+    setIsLoadingDocs(false);
+  }
+}
 
   async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -137,16 +157,19 @@ export default function DocumentManager() {
       }
 
       // Upload to backend
-      const response = await fetch('/api/documents/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filename: file.name,
-          content: content
-        })
-      })
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
+const response = await fetch(`${API_BASE}/api/documents/upload`, {
+  method: 'POST',
+  credentials: 'include',          // sendet Cookies mit
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    filename: file.name,
+    content: content,
+    userId: userId,               // weiterhin User-ID übertragen, falls benötigt
+  }),
+});
 
       const result = await response.json()
 

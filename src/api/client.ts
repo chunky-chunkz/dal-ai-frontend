@@ -4,12 +4,9 @@
  * - Include header in POST /api/answer and SSE /api/answer/stream
  */
 
-// Use Next.js environment variable format
-const BASE_URL = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL 
-  ? process.env.NEXT_PUBLIC_API_URL 
-  : (typeof window !== 'undefined' && (window as any).__ENV__?.VITE_API_URL)
-  ? (window as any).__ENV__.VITE_API_URL
-  : 'http://localhost:8081';
+import { API_BASE } from './config';
+
+const BASE_URL = API_BASE;
 
 /**
  * Generate a UUIDv4 string

@@ -3,6 +3,8 @@
  * Provides type-safe interface to the expert recommendation service
  */
 
+import { API_BASE } from './config';
+
 // Types matching the backend API
 export interface ExpertRecommendationRequest {
   query: string;
@@ -55,7 +57,6 @@ export interface ApiError {
 }
 
 // API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const EXPERTS_BASE_PATH = '/api/experts';
 
 /**
@@ -82,7 +83,7 @@ export async function fetchRecommendations(
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${EXPERTS_BASE_PATH}/recommend`, {
+    const response = await fetch(`${API_BASE}${EXPERTS_BASE_PATH}/recommend`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -137,7 +138,7 @@ export async function fetchRecommendations(
  */
 export async function checkExpertServiceHealth(): Promise<ExpertHealthResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}${EXPERTS_BASE_PATH}/recommend/health`, {
+    const response = await fetch(`${API_BASE}${EXPERTS_BASE_PATH}/recommend/health`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, TrendingUp, Clock, X, Users, Activity } from 'lucide-react';
+import { getApiUrl } from '@/lib/api-config';
 
 // Types for the statistics API response
 interface LatencyMetrics {
@@ -195,7 +196,7 @@ export const ExpertsDashboard: React.FC<ExpertsDashboardProps> = ({
     try {
       setError(null);
       
-      const response = await fetch('/api/stats/experts?limit=5');
+      const response = await fetch(getApiUrl('/api/stats/experts?limit=5'));
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
