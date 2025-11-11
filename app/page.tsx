@@ -257,7 +257,7 @@ try {
       // Get userId from auth/me endpoint
       let userId: string | undefined;
       try {
-        const authResponse = await fetch(getApiUrl('/api/auth/me'), {
+        const authResponse = await fetch(getApiUrl('/auth/me'), {
           credentials: 'include',
         });
 

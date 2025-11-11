@@ -55,7 +55,7 @@ export default function GlobalKnowledgeView() {
 
   async function checkAuthStatus() {
     try {
-      const response = await fetch(getApiUrl('/api/auth/me'), {
+      const response = await fetch(getApiUrl('/auth/me'), {
         credentials: 'include'
       })
       console.log('📝 Auth check response status (Global):', response.status)
@@ -94,7 +94,7 @@ export default function GlobalKnowledgeView() {
     setIsLoading(true)
     try {
       // Load global knowledge from documents
-      const globalResponse = await fetch(getApiUrl('/api/memory/global'))
+      const globalResponse = await fetch(getApiUrl('/auth/memory/global'))
       if (globalResponse.ok) {
         const globalResult = await globalResponse.json()
         setMemories(globalResult.data || [])
@@ -102,7 +102,7 @@ export default function GlobalKnowledgeView() {
       }
 
       // Load user memories
-      const userResponse = await fetch(getApiUrl('/api/memory/all-users'))
+      const userResponse = await fetch(getApiUrl('/auth/memory/all-users'))
       if (userResponse.ok) {
         const userResult = await userResponse.json()
         setUserMemories(userResult.data || [])

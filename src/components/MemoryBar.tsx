@@ -1,11 +1,4 @@
-/**
- * MemoryBar Component
- * 
- * Shows memory suggestions and allows user consent.
- * - Props: suggestions: MemoryItem[]
- * - For each item: "Merken: {key} = {value}?" [Speichern] [Verwerfen]
- * - Calls POST /api/memory/confirm or /api/memory/reject accordingly.
- */
+
 
 import React, { useState } from 'react';
 import { MemoryItem } from '../types/api';

@@ -312,7 +312,7 @@ export async function me(): Promise<UserProfile | null> {
   try {
     console.log('👤 Fetching current user profile...');
     
-    const response = await fetch(`${API_BASE}/api/me`, {
+    const response = await fetch(`${API_BASE}/auth/me`, {
       method: 'GET',
       credentials: 'include', // Include session cookies
       headers: {

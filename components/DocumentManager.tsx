@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Upload, FileText, Trash2, Search, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
-
+import { getApiUrl } from "@/lib/api-config"
 interface DocumentItem {
   id: string
   name: string
@@ -41,12 +41,7 @@ export default function DocumentManager() {
 
 async function checkAuthStatus() {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
-    if (!API_BASE) {
-      throw new Error('NEXT_PUBLIC_API_BASE is not defined');
-    }
-
-    const response = await fetch(`${API_BASE}/api/auth/me`, {
+    const response = await fetch(getApiUrl('/auth/me'), {
       credentials: 'include',
     });
     console.log('📝 Auth check response status:', response.status);
@@ -104,9 +99,8 @@ async function checkAuthStatus() {
 async function loadDocuments() {
   setIsLoadingDocs(true);
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
-    const response = await fetch(`${API_BASE}/api/documents`, {
-      credentials: 'include',          // falls Cookies zur Authentifizierung genutzt werden
+    const response = await fetch(getApiUrl('/api/documents'), {
+      credentials: 'include',
     });
     if (response.ok) {
       const data = await response.json();
@@ -157,19 +151,18 @@ async function loadDocuments() {
       }
 
       // Upload to backend
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
-const response = await fetch(`${API_BASE}/api/documents/upload`, {
-  method: 'POST',
-  credentials: 'include',          // sendet Cookies mit
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    filename: file.name,
-    content: content,
-    userId: userId,               // weiterhin User-ID übertragen, falls benötigt
-  }),
-});
+      const response = await fetch(getApiUrl('/api/documents/upload'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          content: content,
+          // userId is determined by backend from session cookie
+        }),
+      });
 
       const result = await response.json()
 
@@ -211,9 +204,10 @@ const response = await fetch(`${API_BASE}/api/documents/upload`, {
     if (!confirm('Dokument wirklich löschen?')) return
 
     try {
-      const response = await fetch(`/api/documents/${documentId}`, {
-        method: 'DELETE'
-      })
+      const response = await fetch(getApiUrl(`/api/documents/${documentId}`), {
+        method: 'DELETE',
+        credentials: 'include',
+      });
 
       if (response.ok) {
         setUploadStatus({

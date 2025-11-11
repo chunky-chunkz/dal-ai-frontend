@@ -443,7 +443,7 @@ export function askStream(question: string, onChunk: (text: string) => void): St
  */
 export async function confirmMemory(suggestionIds: string[]): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/api/memory/confirm`, {
+    const response = await fetch(`${BASE_URL}/auth/memory/confirm`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -468,7 +468,7 @@ export async function confirmMemory(suggestionIds: string[]): Promise<any> {
  */
 export async function rejectMemory(suggestionIds: string[]): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/api/memory/reject`, {
+    const response = await fetch(`${BASE_URL}/auth/memory/reject`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -493,7 +493,7 @@ export async function rejectMemory(suggestionIds: string[]): Promise<any> {
  */
 export async function getMemories(): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/api/memory`, {
+    const response = await fetch(`${BASE_URL}/auth/memory`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -517,7 +517,7 @@ export async function getMemories(): Promise<any> {
  */
 export async function deleteMemory(memoryId: string): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/api/memory/${memoryId}`, {
+    const response = await fetch(`${BASE_URL}/auth/memory/${memoryId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

@@ -210,7 +210,7 @@ export async function me(): Promise<UserProfile | null> {
   try {
     console.log('🔍 Checking authentication status...');
     
-    const response = await fetch(getApiUrl('/api/me'), {
+    const response = await fetch(getApiUrl('/auth/me'), {
       method: 'GET',
       credentials: 'include', // Include session cookies
       headers: {
