@@ -9,7 +9,8 @@
  */
 
 // Next.js заменяет process.env.NEXT_PUBLIC_* на реальные значения во время сборки
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE
+                     || 'https://dal-ai-backend.onrender.com';
 
 // Для отладки: вывести в консоль, какое значение используется
 if (typeof window !== 'undefined') {
