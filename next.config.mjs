@@ -1,17 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Removed 'output: export' to enable API routes
-  distDir: 'dist',
+  output: 'export',            // statischer Export aktivieren
+  images: { unoptimized: true },
   trailingSlash: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-}
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+};
 
-export default nextConfig
+export default nextConfig;
