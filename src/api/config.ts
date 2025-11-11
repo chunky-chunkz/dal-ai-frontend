@@ -28,8 +28,8 @@ export function getApiBaseUrl(): string {
     return (window as any).__ENV__.VITE_API_URL;
   }
   
-  // Default fallback
-  return 'http://localhost:8081';
+  // Fallback to production backend URL
+  return 'https://dal-ai-backend.onrender.com';
 }
 
 /**

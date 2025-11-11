@@ -11,7 +11,7 @@ build/
 
 # Environment variables
 .env.local
-.env.production
+# .env.production содержит только NEXT_PUBLIC_* переменные, можно коммитить
 
 # IDE
 .vscode/
