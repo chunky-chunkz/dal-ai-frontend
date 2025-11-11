@@ -196,7 +196,9 @@ export const ExpertsDashboard: React.FC<ExpertsDashboardProps> = ({
     try {
       setError(null);
       
-      const response = await fetch(getApiUrl('/api/stats/experts?limit=5'));
+      const response = await fetch(getApiUrl('/api/stats/experts?limit=5'), {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);

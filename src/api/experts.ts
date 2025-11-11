@@ -85,6 +85,7 @@ export async function fetchRecommendations(
   try {
     const response = await fetch(`${API_BASE}${EXPERTS_BASE_PATH}/recommend`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -140,6 +141,7 @@ export async function checkExpertServiceHealth(): Promise<ExpertHealthResponse> 
   try {
     const response = await fetch(`${API_BASE}${EXPERTS_BASE_PATH}/recommend/health`, {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getApiUrl } from '@/lib/api-config';
 
 interface DocumentKPIs {
   totalSearches: number;
@@ -32,7 +33,9 @@ interface DocumentKPIs {
 }
 
 async function getDocumentStats(): Promise<DocumentKPIs> {
-  const response = await fetch('http://localhost:8081/api/stats/documents');
+  const response = await fetch(getApiUrl('/api/stats/documents'), {
+    credentials: 'include'
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch document statistics');
   }

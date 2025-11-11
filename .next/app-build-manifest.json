@@ -38,7 +38,14 @@
       "static/chunks/115-91ba0d76a958fd51.js",
       "static/chunks/90-decebb8484937e6e.js",
       "static/chunks/452-e99c5f9d5f12abaf.js",
-      "static/chunks/app/knowledge/page-df6ac632c0f6f6f7.js"
+      "static/chunks/app/knowledge/page-1b1969750ddf6209.js"
+    ],
+    "/memories/page": [
+      "static/chunks/webpack-2a30c06e0b059571.js",
+      "static/chunks/884316d7-15c5d268aed00e60.js",
+      "static/chunks/569-bb666efdc3162d24.js",
+      "static/chunks/main-app-a58c5ce0159edc49.js",
+      "static/chunks/app/memories/page-6cfe19bc5af43a7e.js"
     ],
     "/page": [
       "static/chunks/webpack-2a30c06e0b059571.js",
@@ -53,12 +60,13 @@
       "static/chunks/452-e99c5f9d5f12abaf.js",
       "static/chunks/app/page-93ef5affb2b78df6.js"
     ],
-    "/memories/page": [
+    "/stats/documents/page": [
       "static/chunks/webpack-2a30c06e0b059571.js",
       "static/chunks/884316d7-15c5d268aed00e60.js",
       "static/chunks/569-bb666efdc3162d24.js",
       "static/chunks/main-app-a58c5ce0159edc49.js",
-      "static/chunks/app/memories/page-65880247c4585a0c.js"
+      "static/chunks/70-83f92624f5f06cc1.js",
+      "static/chunks/app/stats/documents/page-619502f2c8315bee.js"
     ],
     "/settings/page": [
       "static/chunks/webpack-2a30c06e0b059571.js",
@@ -70,15 +78,7 @@
       "static/chunks/115-91ba0d76a958fd51.js",
       "static/chunks/868-944889dfa1a7889d.js",
       "static/chunks/834-a1ad44b5d69c4a91.js",
-      "static/chunks/app/settings/page-bc9d08654fa0cccd.js"
-    ],
-    "/stats/documents/page": [
-      "static/chunks/webpack-2a30c06e0b059571.js",
-      "static/chunks/884316d7-15c5d268aed00e60.js",
-      "static/chunks/569-bb666efdc3162d24.js",
-      "static/chunks/main-app-a58c5ce0159edc49.js",
-      "static/chunks/70-83f92624f5f06cc1.js",
-      "static/chunks/app/stats/documents/page-4624cbb1ed346a21.js"
+      "static/chunks/app/settings/page-06065be3f3943c50.js"
     ],
     "/stats/memory/page": [
       "static/chunks/webpack-2a30c06e0b059571.js",
@@ -88,7 +88,7 @@
       "static/chunks/70-83f92624f5f06cc1.js",
       "static/chunks/115-91ba0d76a958fd51.js",
       "static/chunks/452-e99c5f9d5f12abaf.js",
-      "static/chunks/app/stats/memory/page-755a2a27045c8d17.js"
+      "static/chunks/app/stats/memory/page-d41e19168d5aa189.js"
     ]
   }
 }

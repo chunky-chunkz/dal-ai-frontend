@@ -94,7 +94,9 @@ export default function GlobalKnowledgeView() {
     setIsLoading(true)
     try {
       // Load global knowledge from documents
-      const globalResponse = await fetch(getApiUrl('/api/memory/global'))
+      const globalResponse = await fetch(getApiUrl('/api/memory/global'), {
+        credentials: 'include'
+      })
       if (globalResponse.ok) {
         const globalResult = await globalResponse.json()
         setMemories(globalResult.data || [])
@@ -102,7 +104,9 @@ export default function GlobalKnowledgeView() {
       }
 
       // Load user memories
-      const userResponse = await fetch(getApiUrl('/api/memory/all-users'))
+      const userResponse = await fetch(getApiUrl('/api/memory/all-users'), {
+        credentials: 'include'
+      })
       if (userResponse.ok) {
         const userResult = await userResponse.json()
         setUserMemories(userResult.data || [])

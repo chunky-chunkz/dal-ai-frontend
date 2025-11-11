@@ -186,6 +186,7 @@ export interface FeedbackResponse {
 export async function ask(question: string): Promise<AnswerResponse> {
   const response = await fetch(`${BASE_URL}/api/answer`, {
     method: 'POST',
+    credentials: 'include',
     headers: getCommonHeaders(),
     body: JSON.stringify({ question }),
   });
@@ -204,6 +205,7 @@ export async function ask(question: string): Promise<AnswerResponse> {
 export async function sendFeedback(feedback: FeedbackRequest): Promise<FeedbackResponse> {
   const response = await fetch(`${BASE_URL}/api/feedback`, {
     method: 'POST',
+    credentials: 'include',
     headers: getCommonHeaders(),
     body: JSON.stringify(feedback),
   });
@@ -445,6 +447,7 @@ export async function confirmMemory(suggestionIds: string[]): Promise<any> {
   try {
     const response = await fetch(`${BASE_URL}/api/memory/confirm`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'x-session-id': getSessionId(),
@@ -470,6 +473,7 @@ export async function rejectMemory(suggestionIds: string[]): Promise<any> {
   try {
     const response = await fetch(`${BASE_URL}/api/memory/reject`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'x-session-id': getSessionId(),
@@ -495,6 +499,7 @@ export async function getMemories(): Promise<any> {
   try {
     const response = await fetch(`${BASE_URL}/api/memory`, {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'x-session-id': getSessionId(),
@@ -519,6 +524,7 @@ export async function deleteMemory(memoryId: string): Promise<any> {
   try {
     const response = await fetch(`${BASE_URL}/api/memory/${memoryId}`, {
       method: 'DELETE',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'x-session-id': getSessionId(),
@@ -549,6 +555,7 @@ export async function getMemoryStats(from?: number, to?: number): Promise<any> {
     
     const response = await fetch(url, {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'x-session-id': getSessionId(),

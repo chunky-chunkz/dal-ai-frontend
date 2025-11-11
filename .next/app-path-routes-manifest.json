@@ -2,9 +2,9 @@
   "/_not-found/page": "/_not-found",
   "/documents/page": "/documents",
   "/knowledge/page": "/knowledge",
-  "/page": "/",
   "/memories/page": "/memories",
-  "/settings/page": "/settings",
+  "/page": "/",
   "/stats/documents/page": "/stats/documents",
+  "/settings/page": "/settings",
   "/stats/memory/page": "/stats/memory"
 }
