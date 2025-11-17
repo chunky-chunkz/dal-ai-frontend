@@ -112,20 +112,17 @@ export default function LoginButton({
     setSuccess('');
 
     try {
-      const result = await loginLocal(loginData);
+      const result = await loginLocal(loginData.email, loginData.password);
 
-      if (result.ok && result.user) {
-        setUser(result.user);
-        setSuccess('Erfolgreich eingeloggt!');
-        setShowLoginModal(false);
-        setLoginData({ email: '', password: '' });
-        console.log('✅ Local login successful');
-      } else {
-        setError(result.error || 'Anmeldung fehlgeschlagen');
-      }
+      setUser(result.user);
+      setSuccess('Erfolgreich eingeloggt!');
+      setShowLoginModal(false);
+      setLoginData({ email: '', password: '' });
+      console.log('✅ Login successful');
     } catch (error) {
-      console.error('❌ Local login error:', error);
-      setError('Verbindungsfehler. Bitte versuchen Sie es später erneut.');
+      console.error('❌ Login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Login fehlgeschlagen';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,21 +145,21 @@ export default function LoginButton({
     }
 
     try {
-      const { confirmPassword, ...submitData } = registerData;
-      const result = await registerLocal(submitData);
+      const result = await registerLocal(
+        registerData.email,
+        registerData.password,
+        registerData.displayName
+      );
 
-      if (result.ok && result.user) {
-        setUser(result.user);
-        setSuccess('Konto erfolgreich erstellt und eingeloggt!');
-        setShowLoginModal(false);
-        setRegisterData({ email: '', password: '', displayName: '', confirmPassword: '' });
-        console.log('✅ Registration successful');
-      } else {
-        setError(result.error || 'Registrierung fehlgeschlagen');
-      }
+      setUser(result.user);
+      setSuccess('Konto erfolgreich erstellt und eingeloggt!');
+      setShowLoginModal(false);
+      setRegisterData({ email: '', password: '', displayName: '', confirmPassword: '' });
+      console.log('✅ Registration successful');
     } catch (error) {
       console.error('❌ Registration error:', error);
-      setError('Verbindungsfehler. Bitte versuchen Sie es später erneut.');
+      const errorMessage = error instanceof Error ? error.message : 'Registrierung fehlgeschlagen';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -184,24 +181,20 @@ export default function LoginButton({
       setLoggingOut(true);
       console.log('🚪 Logging out...');
       
-      const result = await logout();
+      await logout();
       
-      if (result.ok) {
-        setUser(null);
-        console.log('✅ Logout successful');
-        setSuccess('Erfolgreich abgemeldet!');
-        
-        // Call the logout callback to clear chat
-        if (onLogout) {
-          onLogout();
-        }
-      } else {
-        console.error('❌ Logout failed:', result.message);
-        setError('Abmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+      setUser(null);
+      console.log('✅ Logout successful');
+      setSuccess('Erfolgreich abgemeldet!');
+      
+      // Call the logout callback to clear chat
+      if (onLogout) {
+        onLogout();
       }
     } catch (error) {
       console.error('❌ Error during logout:', error);
-      setError('Fehler bei der Abmeldung. Bitte versuchen Sie es erneut.');
+      const errorMessage = error instanceof Error ? error.message : 'Fehler bei der Abmeldung';
+      setError(errorMessage);
     } finally {
       setLoggingOut(false);
     }
