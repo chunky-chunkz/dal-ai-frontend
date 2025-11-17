@@ -1,13 +1,7 @@
-/**
- * API Configuration
- * 
- * Zentrale Konfiguration für die Backend-URL.
- * Kann über NEXT_PUBLIC_API_BASE überschrieben werden.
- */
+// lib/api-config.ts
+const API_BASE = 'https://dal-ai-backend.onrender.com';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://dal-ai-backend.onrender.com';
-
-export function getApiUrl(path: string): string {
+export function getApiUrl(path: string) {
   return `${API_BASE}${path}`;
 }
 

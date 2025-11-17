@@ -52,93 +52,35 @@ export interface RegisterData {
 /**
  * Login with email and password
  */
-export async function loginLocal(credentials: LoginCredentials): Promise<AuthResponse> {
-  try {
-    console.log('🔐 Logging in with email and password...');
-    
-    const response = await fetch(getApiUrl('/auth/login'), {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(credentials)
-    });
+export async function loginLocal(email: string, password: string) {
+  const res = await fetch(getApiUrl('/auth/login'), {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
 
-    const data = await response.json();
-    
-    if (response.ok && data.ok && data.user) {
-      console.log('✅ Local login successful:', data.user.email);
-      
-      // Store user info in localStorage for session management
-      try {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        console.log('💾 User info stored in localStorage');
-      } catch (e) {
-        console.warn('Failed to store user info in localStorage');
-      }
-      
-      return data;
-    } else {
-      console.error('❌ Local login failed:', data);
-      return {
-        ok: false,
-        error: data.error || data.message || `Login failed: ${response.status}`
-      };
-    }
-  } catch (error) {
-    console.error('❌ Network error during login:', error);
-    return {
-      ok: false,
-      error: 'Verbindungsfehler zum Server. Ist das Backend gestartet?'
-    };
+  if (!res.ok) {
+    throw new Error(`Login failed: ${res.status}`);
   }
+  return res.json();
 }
 
 /**
  * Register new user with email and password
  */
-export async function registerLocal(userData: RegisterData): Promise<AuthResponse> {
-  try {
-    console.log('📝 Registering new user...');
-    
-    const response = await fetch(getApiUrl('/auth/register'), {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    });
+export async function registerLocal(email: string, password: string, displayName?: string) {
+  const res = await fetch(getApiUrl('/auth/register'), {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, displayName }),
+  });
 
-    const data = await response.json();
-    
-    if (response.ok && data.ok && data.user) {
-      console.log('✅ Registration successful:', data.user.email);
-      
-      // Store user info in localStorage for session management
-      try {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        console.log('💾 User info stored in localStorage');
-      } catch (e) {
-        console.warn('Failed to store user info in localStorage');
-      }
-      
-      return data;
-    } else {
-      console.error('❌ Registration failed:', data);
-      return {
-        ok: false,
-        error: data.error || data.message || `Registration failed: ${response.status}`
-      };
-    }
-  } catch (error) {
-    console.error('❌ Network error during registration:', error);
-    return {
-      ok: false,
-      error: 'Network error during registration'
-    };
+  if (!res.ok) {
+    throw new Error(`Register failed: ${res.status}`);
   }
+  return res.json();
 }
 
 /**
@@ -164,41 +106,14 @@ export function loginWithMicrosoft(): void {
  * Logout the current user
  * Calls backend logout endpoint and clears session
  */
-export async function logout(): Promise<LogoutResponse> {
-  try {
-    console.log('🚪 Logging out...');
-    
-    const response = await fetch(getApiUrl('/auth/logout'), {
-      method: 'POST',
-      credentials: 'include',
-    });
+export async function logout() {
+  const res = await fetch(getApiUrl('/auth/logout'), {
+    method: 'POST',
+    credentials: 'include',
+  });
 
-    if (response.ok) {
-      console.log('✅ Logout successful');
-      
-      // Clear user info from localStorage
-      try {
-        localStorage.removeItem('user');
-        console.log('🗑️ User info cleared from localStorage');
-      } catch (e) {
-        console.warn('Failed to clear user info from localStorage');
-      }
-      
-      return { ok: true };
-    } else {
-      const errorData = await response.text();
-      console.error('❌ Logout failed:', response.status, errorData);
-      return { 
-        ok: false, 
-        message: `Logout failed: ${response.status}` 
-      };
-    }
-  } catch (error) {
-    console.error('❌ Error during logout:', error);
-    return { 
-      ok: false, 
-      message: 'Network error during logout' 
-    };
+  if (!res.ok) {
+    throw new Error(`Logout failed: ${res.status}`);
   }
 }
 
@@ -206,51 +121,19 @@ export async function logout(): Promise<LogoutResponse> {
  * Get current user profile
  * Returns user data if authenticated, null if not
  */
-export async function me(): Promise<UserProfile | null> {
-  try {
-    console.log('🔍 Checking authentication status...');
-    
-    const response = await fetch(getApiUrl('/auth/me'), {
-      method: 'GET',
-      credentials: 'include', // Include session cookies
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+export async function me() {
+  const res = await fetch(getApiUrl('/auth/me'), {
+    method: 'GET',
+    credentials: 'include',
+  });
 
-    if (response.ok) {
-      const userData = await response.json();
-      console.log('✅ User authenticated:', userData.displayName || userData.name || userData.email);
-      
-      // Store user info in localStorage for session management
-      try {
-        localStorage.setItem('user', JSON.stringify(userData));
-        console.log('💾 User info stored in localStorage');
-      } catch (e) {
-        console.warn('Failed to store user info in localStorage');
-      }
-      
-      return userData;
-    } else if (response.status === 401) {
-      console.log('❌ User not authenticated');
-      
-      // Clear user info from localStorage
-      try {
-        localStorage.removeItem('user');
-      } catch (e) {
-        // Ignore
-      }
-      
-      return null;
-    } else {
-      console.error('❌ Error checking auth status:', response.status);
-      return null;
-    }
-  } catch (error) {
-    console.error('❌ Network error checking auth status:', error);
-    console.error('Backend might not be running. Check API configuration.');
+  if (res.status === 401) {
     return null;
   }
+  if (!res.ok) {
+    throw new Error(`Me failed: ${res.status}`);
+  }
+  return res.json();
 }
 
 /**
