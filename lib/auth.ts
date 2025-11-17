@@ -61,15 +61,21 @@ export async function loginLocal(email: string, password: string) {
   });
 
   if (!res.ok) {
-    throw new Error(`Login failed: ${res.status}`);
+    const text = await res.text();
+    throw new Error(`Login failed (${res.status}): ${text}`);
   }
+
   return res.json();
 }
 
 /**
  * Register new user with email and password
  */
-export async function registerLocal(email: string, password: string, displayName?: string) {
+export async function registerLocal(
+  email: string,
+  password: string,
+  displayName?: string
+) {
   const res = await fetch(getApiUrl('/auth/register'), {
     method: 'POST',
     credentials: 'include',
@@ -78,8 +84,10 @@ export async function registerLocal(email: string, password: string, displayName
   });
 
   if (!res.ok) {
-    throw new Error(`Register failed: ${res.status}`);
+    const text = await res.text();
+    throw new Error(`Register failed (${res.status}): ${text}`);
   }
+
   return res.json();
 }
 
@@ -113,7 +121,8 @@ export async function logout() {
   });
 
   if (!res.ok) {
-    throw new Error(`Logout failed: ${res.status}`);
+    const text = await res.text();
+    throw new Error(`Logout failed (${res.status}): ${text}`);
   }
 }
 
@@ -127,12 +136,12 @@ export async function me() {
     credentials: 'include',
   });
 
-  if (res.status === 401) {
-    return null;
-  }
+  if (res.status === 401) return null;
   if (!res.ok) {
-    throw new Error(`Me failed: ${res.status}`);
+    const text = await res.text();
+    throw new Error(`Me failed (${res.status}): ${text}`);
   }
+
   return res.json();
 }
 
