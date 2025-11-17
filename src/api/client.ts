@@ -349,6 +349,10 @@ export function askStream(question: string, onChunk: (text: string) => void): St
   const sessionId = getSessionId();
   const url = `${BASE_URL}/api/answer/stream?question=${encodeURIComponent(question)}&sessionId=${encodeURIComponent(sessionId)}`;
   
+  // Note: EventSource automatically includes cookies (withCredentials: true behavior)
+  // when connecting to the same origin or when proper CORS headers are set by the server.
+  // The backend must set Access-Control-Allow-Credentials: true for cross-origin requests.
+  
   let eventSource: EventSource | null = null;
   let isCompleted = false;
   let hasFallenBack = false;
