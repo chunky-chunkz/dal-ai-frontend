@@ -505,7 +505,6 @@ export async function getMemories(): Promise<any> {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
         'x-session-id': getSessionId(),
       },
     });
@@ -561,7 +560,6 @@ export async function getMemoryStats(from?: number, to?: number): Promise<any> {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
         'x-session-id': getSessionId(),
       },
     });

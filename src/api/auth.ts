@@ -107,7 +107,7 @@ export async function register(userData: RegisterRequest): Promise<AuthResponse>
   try {
     console.log('📝 Registering new user...');
     
-    const response = await fetch(`${API_BASE}/api/auth/register`, {
+    const response = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -153,7 +153,7 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
   try {
     console.log('🔐 Logging in user...');
     
-    const response = await fetch(`${API_BASE}/api/auth/login`, {
+    const response = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -198,7 +198,7 @@ export async function logout(): Promise<LogoutResponse> {
   try {
     console.log('🚪 Logging out user...');
     
-    const response = await fetch(`${API_BASE}/api/auth/logout`, {
+    const response = await fetch(`${API_BASE}/auth/logout`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -242,9 +242,6 @@ export async function providers(): Promise<ProvidersResponse> {
     const response = await fetch(`${API_BASE}/api/auth/providers`, {
       method: 'GET',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
     });
 
     if (!response.ok) {
@@ -273,9 +270,6 @@ export async function checkMicrosoftAuth(): Promise<MicrosoftStatusResponse> {
     const response = await fetch(`${API_BASE}/auth/ms/enabled`, {
       method: 'GET',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
     });
 
     if (!response.ok) {
@@ -314,10 +308,7 @@ export async function me(): Promise<UserProfile | null> {
     
     const response = await fetch(`${API_BASE}/auth/me`, {
       method: 'GET',
-      credentials: 'include', // Include session cookies
-      headers: {
-        'Accept': 'application/json',
-      },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -352,10 +343,7 @@ export async function getCalendarEvents(limit: number = 5): Promise<EventsRespon
     
     const response = await fetch(`${API_BASE}/api/outlook/events?limit=${limit}`, {
       method: 'GET',
-      credentials: 'include', // Include session cookies
-      headers: {
-        'Accept': 'application/json',
-      },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -390,10 +378,7 @@ export async function getUnreadEmails(limit: number = 10): Promise<UnreadMailRes
     
     const response = await fetch(`${API_BASE}/api/outlook/unread?limit=${limit}`, {
       method: 'GET',
-      credentials: 'include', // Include session cookies
-      headers: {
-        'Accept': 'application/json',
-      },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -427,10 +412,7 @@ export async function getOutlookSummary(): Promise<OutlookSummary | null> {
     
     const response = await fetch(`${API_BASE}/api/outlook/summary`, {
       method: 'GET',
-      credentials: 'include', // Include session cookies
-      headers: {
-        'Accept': 'application/json',
-      },
+      credentials: 'include',
     });
 
     if (!response.ok) {

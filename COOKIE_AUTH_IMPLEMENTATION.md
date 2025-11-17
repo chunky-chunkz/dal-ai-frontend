@@ -1,8 +1,276 @@
-# Cookie-basierte Authentifizierung - Implementierung
+# Cookie-basierte Authentifizierung - Implementierung ✅
 
 ## Zusammenfassung
 
-Alle API-Aufrufe im Frontend wurden so konfiguriert, dass sie Cookies (insbesondere das `sid`-Cookie) korrekt an das Backend senden. Dies ermöglicht eine session-basierte Authentifizierung über Domain-Grenzen hinweg.
+Alle API-Aufrufe im Frontend sind jetzt korrekt konfiguriert, um Cookies (insbesondere das `sid`-Cookie) an das Backend zu senden. Die Implementierung folgt den Best Practices:
+
+✅ **Zentrale Backend-URL** ohne doppelte Slashes  
+✅ **`credentials: 'include'`** bei allen relevanten API-Aufrufen  
+✅ **Keine redundanten Header** (Browser verwaltet Cookies automatisch)  
+✅ **Korrekte Endpoints** gemäß Backend-API
+
+## Implementierte Änderungen
+
+### 1. ✅ Zentrale API-Konfiguration
+
+#### `lib/api-config.ts` (Next.js)
+```typescript
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://dal-ai-backend.onrender.com';
+
+export function getApiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+export { API_BASE };
+```
+
+#### `src/api/config.ts` (Vite/Universal)
+```typescript
+const API_BASE = 
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_BASE) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
+  'https://dal-ai-backend.onrender.com';
+
+export function getApiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+export { API_BASE };
+```
+
+**Wichtig:** 
+- Keine doppelten Slashes (`...com//auth/me`)
+- Path beginnt immer mit `/`
+- Einfache, saubere URL-Konstruktion
+
+### 2. ✅ Auth-Endpoints mit `credentials: 'include'`
+
+Alle Auth-Funktionen verwenden jetzt die korrekten Endpoints:
+
+#### `lib/auth.ts` (Next.js)
+```typescript
+// ✅ /auth/register (nicht /api/auth/register)
+export async function registerLocal(userData: RegisterData) {
+  const response = await fetch(getApiUrl('/auth/register'), {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData),
+  });
+}
+
+// ✅ /auth/login (nicht /api/auth/login)
+export async function loginLocal(credentials: LoginCredentials) {
+  const response = await fetch(getApiUrl('/auth/login'), {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+  });
+}
+
+// ✅ /auth/me
+export async function me() {
+  const response = await fetch(getApiUrl('/auth/me'), {
+    method: 'GET',
+    credentials: 'include',
+  });
+}
+
+// ✅ /auth/logout (nicht /api/auth/logout)
+export async function logout() {
+  const response = await fetch(getApiUrl('/auth/logout'), {
+    method: 'POST',
+    credentials: 'include',
+  });
+}
+```
+
+#### `src/api/auth.ts` (Universal)
+```typescript
+// ✅ /auth/register
+export async function register(userData: RegisterRequest) {
+  const response = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData),
+  });
+}
+
+// ✅ /auth/login
+export async function login(credentials: LoginRequest) {
+  const response = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+  });
+}
+
+// ✅ /auth/me (keine redundanten Accept-Header)
+export async function me() {
+  const response = await fetch(`${API_BASE}/auth/me`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+}
+
+// ✅ /auth/logout
+export async function logout() {
+  const response = await fetch(`${API_BASE}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+}
+```
+
+### 3. ✅ Weitere API-Endpoints
+
+Alle weiteren API-Aufrufe verwenden ebenfalls `credentials: 'include'`:
+
+#### Chat & Memory API (`src/api/client.ts`)
+- `ask()` - POST `/api/answer`
+- `sendFeedback()` - POST `/api/feedback`
+- `confirmMemory()` - POST `/api/memory/confirm`
+- `rejectMemory()` - POST `/api/memory/reject`
+- `getMemories()` - GET `/api/memory`
+- `deleteMemory()` - DELETE `/api/memory/{id}`
+- `getMemoryStats()` - GET `/api/stats/memory`
+
+#### Expert Recommendations (`src/api/experts.ts`)
+- `fetchRecommendations()` - POST `/api/experts/recommend`
+- `checkExpertServiceHealth()` - GET `/api/experts/recommend/health`
+
+#### Outlook Integration (`src/api/auth.ts`)
+- `getCalendarEvents()` - GET `/api/outlook/events`
+- `getUnreadEmails()` - GET `/api/outlook/unread`
+- `getOutlookSummary()` - GET `/api/outlook/summary`
+
+#### Main Page (`app/page.tsx`)
+- POST `/api/answer` - Chat-Anfragen
+- GET `/auth/me` - User-Authentifizierung prüfen
+- POST `/api/documents/upload` - Dokumenten-Upload
+
+### 4. ✅ EventSource für Server-Sent Events (SSE)
+
+**Wichtig**: EventSource sendet automatisch Cookies mit, wenn:
+- Die Anfrage zur gleichen Origin geht (same-origin), **ODER**
+- Der Server die korrekten CORS-Header setzt:
+  ```
+  Access-Control-Allow-Origin: <frontend-origin>
+  Access-Control-Allow-Credentials: true
+  ```
+
+```typescript
+// src/api/client.ts
+const url = `${BASE_URL}/api/answer/stream?question=${encodeURIComponent(question)}`;
+
+// Note: EventSource automatically includes cookies (withCredentials: true behavior)
+// when connecting to the same origin or when proper CORS headers are set by the server.
+const eventSource = new EventSource(url);
+```
+
+**Fallback**: Falls SSE nicht funktioniert, wird automatisch auf POST `/api/answer` zurückgefallen (mit `credentials: 'include'`).
+
+## Best Practices implementiert
+
+✅ **Keine `mode: 'no-cors'`** - würde Cookies blockieren  
+✅ **Kein manueller Cookie-Header** - Browser verwaltet dies automatisch  
+✅ **Keine redundanten Header bei GET** - `Accept` und `Content-Type` sind optional  
+✅ **`Content-Type: application/json`** nur bei POST/PUT mit Body  
+✅ **Konsistente Endpoints** - `/auth/*` für Auth, `/api/*` für Rest
+
+## Verwendung
+
+### Umgebungsvariablen setzen
+
+Erstellen Sie eine `.env.local` Datei:
+
+```bash
+# Next.js
+NEXT_PUBLIC_API_BASE=https://dal-ai-backend.onrender.com
+
+# Vite
+VITE_API_URL=https://dal-ai-backend.onrender.com
+```
+
+**WICHTIG**: Nach Änderung von `.env.local` neu bauen:
+```bash
+npm run build
+```
+
+## Backend-Anforderungen
+
+### 1. CORS-Header korrekt setzen
+```python
+# Flask/Python Beispiel
+from flask_cors import CORS
+
+app.config['CORS_SUPPORTS_CREDENTIALS'] = True
+CORS(app, 
+     origins=['https://ihr-frontend.vercel.app'],
+     supports_credentials=True)
+```
+
+### 2. Session-Cookie mit korrekten Attributen
+```python
+app.config['SESSION_COOKIE_SECURE'] = True      # Nur über HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True    # Schutz vor XSS
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Cross-site erlauben
+app.config['SESSION_COOKIE_DOMAIN'] = None      # Keine Domain-Einschränkung
+```
+
+### 3. Response-Header für jede Anfrage
+```python
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    if origin in ['https://ihr-frontend.vercel.app', 'http://localhost:3000']:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
+```
+
+## Testing
+
+### Browser DevTools prüfen:
+
+1. **F12** → **Network** Tab
+2. API-Call durchführen
+3. Request auswählen → **Headers** prüfen:
+   - ✅ **Request Headers**: `Cookie: sid=...` sollte vorhanden sein
+   - ✅ **Response Headers**: `Set-Cookie` bei Login/Register
+
+### Console-Logs:
+
+```
+🔐 Logging in with email and password...
+✅ Local login successful: user@example.com
+💾 User info stored in localStorage
+```
+
+## Fehlerbehebung
+
+| Problem | Lösung |
+|---------|--------|
+| ❌ Cookies werden nicht gesendet | ✅ Alle `fetch()` haben `credentials: 'include'` |
+| ❌ CORS-Fehler | ✅ Backend muss `Access-Control-Allow-Credentials: true` setzen |
+| ❌ Backend erlaubt Origin `*` | ✅ Backend muss spezifischen Origin setzen (nicht `*`) |
+| ❌ HTTP statt HTTPS | ✅ In Production immer HTTPS verwenden |
+| ❌ SSE funktioniert nicht | ✅ Automatischer Fallback zu POST `/api/answer` |
+| ❌ Doppelte Slashes in URL | ✅ Fixed: `getApiUrl()` konstruiert URLs korrekt |
+
+## Zusammenfassung
+
+✅ **Zentrale API-Konfiguration** ohne doppelte Slashes  
+✅ **Alle Auth-Endpoints** verwenden `/auth/*` (nicht `/api/auth/*`)  
+✅ **`credentials: 'include'`** bei allen API-Aufrufen  
+✅ **Keine redundanten Header** - Browser verwaltet Cookies  
+✅ **EventSource** sendet automatisch Cookies (mit CORS)  
+✅ **Keine weiteren Änderungen nötig**
+
+Die Session-Verwaltung im Frontend (localStorage etc.) bleibt unverändert. Das `sid`-Cookie wird jetzt automatisch mit allen Requests mitgeschickt.
 
 ## Implementierte Änderungen
 

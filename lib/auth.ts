@@ -56,7 +56,7 @@ export async function loginLocal(credentials: LoginCredentials): Promise<AuthRes
   try {
     console.log('🔐 Logging in with email and password...');
     
-    const response = await fetch(getApiUrl('/api/auth/login'), {
+    const response = await fetch(getApiUrl('/auth/login'), {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -102,7 +102,7 @@ export async function registerLocal(userData: RegisterData): Promise<AuthRespons
   try {
     console.log('📝 Registering new user...');
     
-    const response = await fetch(getApiUrl('/api/auth/register'), {
+    const response = await fetch(getApiUrl('/auth/register'), {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -168,9 +168,9 @@ export async function logout(): Promise<LogoutResponse> {
   try {
     console.log('🚪 Logging out...');
     
-    const response = await fetch(getApiUrl('/api/auth/logout'), {
+    const response = await fetch(getApiUrl('/auth/logout'), {
       method: 'POST',
-      credentials: 'include', // Include session cookies
+      credentials: 'include',
     });
 
     if (response.ok) {

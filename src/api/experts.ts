@@ -142,9 +142,6 @@ export async function checkExpertServiceHealth(): Promise<ExpertHealthResponse> 
     const response = await fetch(`${API_BASE}${EXPERTS_BASE_PATH}/recommend/health`, {
       method: 'GET',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
     });
 
     if (!response.ok) {
