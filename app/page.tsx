@@ -14,6 +14,7 @@ import MobileNavigation from "@/components/MobileNavigation"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import Link from "next/link"
 import { getApiUrl } from "@/lib/api-config"
+import { useAuth } from "@/contexts/AuthContext"
 
 interface Message {
   id: string
@@ -37,27 +38,20 @@ export default function AIToolFrontend() {
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  const [currentUser, setCurrentUser] = useState<string | null>(null)
+  const { user } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isUploadingDoc, setIsUploadingDoc] = useState(false)
   const [currentModel, setCurrentModel] = useState<string>("phi3")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Function to clear chat messages on logout
-  const handleLogout = () => {
-    console.log('🗑️ Clearing chat messages due to logout');
-    setCurrentUser(null);
-    setMessages([]);
-  };
+  // Get user display name from global auth context
+  const userName = user ? (user.displayName || user.name || user.email) : null;
 
-  // Function to handle user login - memoized to prevent infinite loops
-  const handleAuthChange = useCallback((user: any) => {
-    if (user) {
-      console.log('✅ User logged in:', user.displayName || user.name || user.email);
-      const userName = user.displayName || user.name || user.email;
-      setCurrentUser(userName);
-      // Set personalized welcome message
+  // Update welcome message when user changes
+  useEffect(() => {
+    if (user && userName) {
+      console.log('✅ User logged in:', userName);
       setMessages([
         {
           id: "1",
@@ -67,10 +61,10 @@ export default function AIToolFrontend() {
         },
       ]);
     } else {
-      console.log('❌ User logged out');
-      setCurrentUser(null);
+      console.log('❌ User logged out or not authenticated');
+      setMessages([]);
     }
-  }, []); // Empty deps array - function logic doesn't depend on any external values
+  }, [user]); // Depend on user from context
 
   // Auto-scroll chat area to bottom when new messages are added
   const scrollToBottom = () => {
@@ -142,7 +136,7 @@ export default function AIToolFrontend() {
         },
         body: JSON.stringify({
           question: messageText,
-          sessionId: currentUser || 'anonymous',
+          sessionId: userName || 'anonymous',
           retry: isRetry,
           attempt: retryCount,
           settings: aiSettings,
@@ -374,22 +368,18 @@ export default function AIToolFrontend() {
               </Link>
               <ThemeToggle />
               <LoginButton 
-                className="ml-2" 
-                onLogout={handleLogout}
-                onAuthChange={handleAuthChange}
+                className="ml-2"
               />
             </nav>
 
             <div className="md:hidden flex items-center gap-2">
               <ThemeToggle />
               <LoginButton 
-                className="text-xs px-2 py-1" 
-                onLogout={handleLogout}
-                onAuthChange={handleAuthChange}
+                className="text-xs px-2 py-1"
               />
               <MobileNavigation 
-                currentUser={currentUser}
-                onLogout={handleLogout}
+                currentUser={userName}
+                onLogout={() => {}}
               />
             </div>
           </div>

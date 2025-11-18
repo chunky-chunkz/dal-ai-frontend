@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LogOut, User, Mail, Lock, UserPlus, Loader2, AlertTriangle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   loginLocal, 
   registerLocal, 
@@ -27,19 +28,15 @@ import {
 
 interface LoginButtonProps {
   className?: string;
-  onAuthChange?: (user: UserProfile | null) => void;
-  onLogout?: () => void; // New callback for logout events
+  onLogout?: () => void; // Callback for logout events
 }
 
 export default function LoginButton({ 
   className = '', 
-  onAuthChange,
   onLogout
 }: LoginButtonProps) {
-  // Authentication state
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loggingOut, setLoggingOut] = useState(false);
+  // Use global auth context
+  const { user, setUser, isLoading: authLoading } = useAuth();
   
   // UI state
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -47,6 +44,7 @@ export default function LoginButton({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
+  const [loggingOut, setLoggingOut] = useState(false);
   
   // Form data
   const [loginData, setLoginData] = useState<LoginCredentials>({ 
@@ -60,31 +58,20 @@ export default function LoginButton({
     confirmPassword: '' 
   });
 
-  // Check authentication status on mount
+  // Check authentication status on mount (nur wenn nicht schon aus localStorage geladen)
   useEffect(() => {
-    console.log('🔄 LoginButton component mounted');
-    checkAuthStatus();
-  }, []);
-
-  // Notify parent component of auth changes
-  useEffect(() => {
-    if (onAuthChange) {
-      onAuthChange(user);
+    if (!authLoading && !user) {
+      console.log('🔄 Checking auth status from server...');
+      checkAuthStatus();
     }
-  }, [user, onAuthChange]);
-
-  // Debug state changes
-  useEffect(() => {
-    console.log('🔄 Login modal state changed:', showLoginModal);
-  }, [showLoginModal]);
+  }, [authLoading]);
 
   /**
-   * Check current authentication status
+   * Check current authentication status from server
    */
   const checkAuthStatus = async () => {
     try {
-      setLoading(true);
-      console.log('🔍 Checking authentication status...');
+      console.log('🔍 Checking authentication status from server...');
       
       const currentUser = await me();
       setUser(currentUser);
@@ -97,8 +84,6 @@ export default function LoginButton({
     } catch (error) {
       console.error('❌ Error checking auth status:', error);
       setUser(null);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -242,7 +227,7 @@ export default function LoginButton({
   /**
    * Loading state
    */
-  if (loading) {
+  if (authLoading) {
     return (
       <div className={`flex items-center space-x-2 ${className || ''}`}>
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
