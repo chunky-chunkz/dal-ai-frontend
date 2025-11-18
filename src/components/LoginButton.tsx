@@ -98,9 +98,9 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
    */
   if (loading) {
     return (
-      <div className={`flex items-center space-x-2 ${className}`}>
+      <div className={`flex items-center space-x-2 ${className || ''}`}>
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-        <span className="text-sm text-gray-600">Checking auth...</span>
+        <span className="text-sm text-gray-600">Loading...</span>
       </div>
     );
   }
@@ -109,13 +109,16 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
    * Authenticated state - show user info and logout button
    */
   if (user) {
+    const displayName = user.displayName || user.name || user.email || 'User';
+    const initial = displayName && displayName.length > 0 ? displayName.charAt(0).toUpperCase() : 'U';
+    
     return (
-      <div className={`flex items-center space-x-3 ${className}`}>
+      <div className={`flex items-center space-x-3 ${className || ''}`}>
         {/* User Avatar */}
         <div className="flex-shrink-0">
           <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
             <span className="text-sm font-medium text-blue-600">
-              {user.displayName.charAt(0).toUpperCase()}
+              {initial}
             </span>
           </div>
         </div>
@@ -123,7 +126,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
         {/* User Info */}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">
-            {user.displayName}
+            {displayName}
           </p>
           {user.jobTitle && (
             <p className="text-xs text-gray-500 truncate">
@@ -155,7 +158,9 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
    * Unauthenticated state - show login button
    */
   return (
-    <div className={`flex items-center ${className}`}>
+        <div className={`flex items-center ${className || ''}`}>
+      {/* Login button */}
+      <button
       <button
         onClick={handleLogin}
         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
@@ -231,17 +236,20 @@ export const CompactLoginButton: React.FC<LoginButtonProps> = ({
 
   if (loading) {
     return (
-      <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 ${className}`}>
+      <div className={`animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 ${className || ''}`}>
       </div>
     );
   }
 
   if (user) {
+    const displayName = user.displayName || user.name || user.email || 'User';
+    const initial = displayName && displayName.length > 0 ? displayName.charAt(0).toUpperCase() : 'U';
+    
     return (
-      <div className={`flex items-center space-x-2 ${className}`}>
+      <div className={`flex items-center space-x-2 ${className || ''}`}>
         <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
           <span className="text-xs font-medium text-blue-600">
-            {user.displayName.charAt(0).toUpperCase()}
+            {initial}
           </span>
         </div>
         <button
@@ -259,7 +267,7 @@ export const CompactLoginButton: React.FC<LoginButtonProps> = ({
   return (
     <button
       onClick={handleLogin}
-      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-600 border border-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${className}`}
+      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-600 border border-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors ${className || ''}`}
       title="Mit Microsoft anmelden"
     >
       Login

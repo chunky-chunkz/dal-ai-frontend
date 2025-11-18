@@ -244,7 +244,7 @@ export default function LoginButton({
    */
   if (loading) {
     return (
-      <div className={`flex items-center space-x-2 ${className}`}>
+      <div className={`flex items-center space-x-2 ${className || ''}`}>
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
         <span className="text-sm text-muted-foreground">Loading...</span>
       </div>
@@ -255,14 +255,15 @@ export default function LoginButton({
    * Authenticated state - show user info and logout button
    */
   if (user) {
-    const displayName = user.displayName || user.name || user.email;
+    const displayName = user.displayName || user.name || user.email || 'User';
+    const initial = displayName && displayName.length > 0 ? displayName.charAt(0).toUpperCase() : 'U';
     
     return (
-      <div className={`flex items-center space-x-2 ${className}`}>
+      <div className={`flex items-center space-x-2 ${className || ''}`}>
         {/* User Avatar */}
         <Avatar className="h-8 w-8">
           <AvatarFallback>
-            {displayName.charAt(0).toUpperCase()}
+            {initial}
           </AvatarFallback>
         </Avatar>
         
@@ -321,7 +322,7 @@ export default function LoginButton({
         }}
         variant="default"
         size="sm"
-        className={`flex items-center gap-2 cursor-pointer ${className}`}
+        className={`flex items-center gap-2 cursor-pointer ${className || ''}`}
         style={{ pointerEvents: 'auto', zIndex: 10 }}
       >
         <User className="h-4 w-4" />
