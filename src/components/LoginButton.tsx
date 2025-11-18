@@ -109,8 +109,10 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
    * Authenticated state - show user info and logout button
    */
   if (user) {
-    const displayName = user.displayName || user.name || user.email || 'User';
-    const initial = displayName && displayName.length > 0 ? displayName.charAt(0).toUpperCase() : 'U';
+    const displayName = (user.displayName || user.name || user.email || 'User').toString();
+    const initial = (displayName && typeof displayName === 'string' && displayName.length > 0) 
+      ? displayName.charAt(0).toUpperCase() 
+      : 'U';
     
     return (
       <div className={`flex items-center space-x-3 ${className || ''}`}>
@@ -242,8 +244,10 @@ export const CompactLoginButton: React.FC<LoginButtonProps> = ({
   }
 
   if (user) {
-    const displayName = user.displayName || user.name || user.email || 'User';
-    const initial = displayName && displayName.length > 0 ? displayName.charAt(0).toUpperCase() : 'U';
+    const displayName = (user.displayName || user.name || user.email || 'User').toString();
+    const initial = (displayName && typeof displayName === 'string' && displayName.length > 0) 
+      ? displayName.charAt(0).toUpperCase() 
+      : 'U';
     
     return (
       <div className={`flex items-center space-x-2 ${className || ''}`}>

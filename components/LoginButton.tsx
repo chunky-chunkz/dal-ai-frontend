@@ -255,8 +255,11 @@ export default function LoginButton({
    * Authenticated state - show user info and logout button
    */
   if (user) {
-    const displayName = user.displayName || user.name || user.email || 'User';
-    const initial = displayName && displayName.length > 0 ? displayName.charAt(0).toUpperCase() : 'U';
+    // Extra safety: ensure we always have a valid string
+    const displayName = (user.displayName || user.name || user.email || 'User').toString();
+    const initial = (displayName && typeof displayName === 'string' && displayName.length > 0) 
+      ? displayName.charAt(0).toUpperCase() 
+      : 'U';
     
     return (
       <div className={`flex items-center space-x-2 ${className || ''}`}>
