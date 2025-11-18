@@ -113,12 +113,26 @@ export default function LoginButton({
 
     try {
       const result = await loginLocal(loginData.email, loginData.password);
+      
+      console.log('📝 Login response:', result);
 
-      setUser(result.user);
-      setSuccess('Erfolgreich eingeloggt!');
-      setShowLoginModal(false);
-      setLoginData({ email: '', password: '' });
-      console.log('✅ Login successful');
+      // Handle different response formats
+      if (result && result.user) {
+        setUser(result.user);
+        setSuccess('Erfolgreich eingeloggt!');
+        setShowLoginModal(false);
+        setLoginData({ email: '', password: '' });
+        console.log('✅ Login successful');
+      } else if (result && result.id) {
+        // Backend returns user directly without wrapper
+        setUser(result as UserProfile);
+        setSuccess('Erfolgreich eingeloggt!');
+        setShowLoginModal(false);
+        setLoginData({ email: '', password: '' });
+        console.log('✅ Login successful');
+      } else {
+        throw new Error('Unexpected response format from login');
+      }
     } catch (error) {
       console.error('❌ Login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Login fehlgeschlagen';
@@ -150,12 +164,26 @@ export default function LoginButton({
         registerData.password,
         registerData.displayName
       );
+      
+      console.log('📝 Register response:', result);
 
-      setUser(result.user);
-      setSuccess('Konto erfolgreich erstellt und eingeloggt!');
-      setShowLoginModal(false);
-      setRegisterData({ email: '', password: '', displayName: '', confirmPassword: '' });
-      console.log('✅ Registration successful');
+      // Handle different response formats
+      if (result && result.user) {
+        setUser(result.user);
+        setSuccess('Konto erfolgreich erstellt und eingeloggt!');
+        setShowLoginModal(false);
+        setRegisterData({ email: '', password: '', displayName: '', confirmPassword: '' });
+        console.log('✅ Registration successful');
+      } else if (result && result.id) {
+        // Backend returns user directly without wrapper
+        setUser(result as UserProfile);
+        setSuccess('Konto erfolgreich erstellt und eingeloggt!');
+        setShowLoginModal(false);
+        setRegisterData({ email: '', password: '', displayName: '', confirmPassword: '' });
+        console.log('✅ Registration successful');
+      } else {
+        throw new Error('Unexpected response format from registration');
+      }
     } catch (error) {
       console.error('❌ Registration error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Registrierung fehlgeschlagen';
